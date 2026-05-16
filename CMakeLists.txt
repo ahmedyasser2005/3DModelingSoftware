@@ -9,6 +9,9 @@ add_executable(${PROJECT_NAME}
 
     "src/Core/Window.h"
     "src/Core/Window.cpp"
+
+    "src/Core/Renderer.h"
+    "src/Core/Renderer.cpp"
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
