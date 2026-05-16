@@ -9,7 +9,10 @@ add_executable(${PROJECT_NAME}
 
     "src/Core/Window.h"
     "src/Core/Window.cpp"
-
+    
+    "src/Core/Rasterizer.h"
+    "src/Core/Framebuffer.h"
+    
     "src/Core/Renderer.h"
     "src/Core/Renderer.cpp"
 )
