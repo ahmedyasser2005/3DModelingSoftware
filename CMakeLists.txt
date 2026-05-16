@@ -5,7 +5,10 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(${PROJECT_NAME}
-    src/Main.cpp
+    "src/Main.cpp"
+
+    "src/Core/Window.h"
+    "src/Core/Window.cpp"
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
