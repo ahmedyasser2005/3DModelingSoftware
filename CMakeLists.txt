@@ -5,11 +5,19 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(${PROJECT_NAME}
-    src/main.cpp
-)
+    "src/Main.cpp"
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    WIN32_EXECUTABLE TRUE
+    "src/Core/Window.h"
+    "src/Core/Window.cpp"
+    
+    "src/Core/Rasterizer.h"
+    "src/Core/Framebuffer.h"
+    
+    "src/Core/Renderer.h"
+    "src/Core/Renderer.cpp"
+
+    "src/Core/Application.h"
+    "src/Core/Application.cpp"
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler)
