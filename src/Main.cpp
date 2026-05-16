@@ -1,7 +1,17 @@
-#include <Windows.h>
+#include "Core/Application.h"
+#include <iostream>
+#include <stdexcept>
 
-_Use_decl_annotations_ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+int main()
 {
-
-    return 0;
+    try
+    {
+        Application app;
+        return app.Run();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Fatal Exception Occurred: " << e.what() << std::endl;
+        return -1;
+    }
 }

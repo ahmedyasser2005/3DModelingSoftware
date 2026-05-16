@@ -15,10 +15,9 @@ add_executable(${PROJECT_NAME}
     
     "src/Core/Renderer.h"
     "src/Core/Renderer.cpp"
-)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    WIN32_EXECUTABLE TRUE
+    "src/Core/Application.h"
+    "src/Core/Application.cpp"
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler)
