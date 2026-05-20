@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "Win32API.h"
 #include <cstdint>
+#include <functional>
 #include <string_view>
 
 struct WindowDesc
@@ -24,6 +25,11 @@ class Win32Window final
     Win32Window& operator=(Win32Window&&) = delete;
 
     [[nodiscard]] bool ProcessMessages() const noexcept;
+
+    void SetResizeCallback(std::function<void(uint32_t, uint32_t)> cb) noexcept
+    {
+        m_ResizeCallback = std::move(cb);
+    }
 
     [[nodiscard]] const Input& GetInput() const noexcept
     {
@@ -51,4 +57,6 @@ class Win32Window final
     Input m_Input;
     uint32_t m_Width = 0;
     uint32_t m_Height = 0;
+
+    std::function<void(uint32_t, uint32_t)> m_ResizeCallback;
 };

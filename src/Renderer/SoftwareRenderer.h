@@ -15,6 +15,7 @@ class SoftwareRenderer final
 
     void Initialize(uint32_t width, uint32_t height);
     void Resize(uint32_t width, uint32_t height);
+    void ResizeCanvas(uint32_t width, uint32_t height, uint8_t bgR, uint8_t bgG, uint8_t bgB);
 
     void Clear(uint8_t r, uint8_t g, uint8_t b);
     void PutPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b);
@@ -23,6 +24,7 @@ class SoftwareRenderer final
     {
         return m_Framebuffer;
     }
+
     [[nodiscard]] uint32_t GetWidth() const noexcept
     {
         return m_Width;
@@ -33,7 +35,13 @@ class SoftwareRenderer final
     }
 
   private:
+    void RebuildFramebuffer();
+
+    std::vector<uint32_t> m_Canvas;
+    uint32_t m_CanvasW = 0;
+    uint32_t m_CanvasH = 0;
+
+    std::vector<uint32_t> m_Framebuffer;
     uint32_t m_Width = 0;
     uint32_t m_Height = 0;
-    std::vector<uint32_t> m_Framebuffer;
 };

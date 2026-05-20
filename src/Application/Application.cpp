@@ -6,6 +6,15 @@ Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 72
     m_DX11Renderer.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
 
     m_SoftwareRenderer.Clear(30, 33, 40); // Sleek editor dark mode background
+
+    m_Window.SetResizeCallback(
+        [this](uint32_t w, uint32_t h)
+        {
+            m_SoftwareRenderer.ResizeCanvas(w, h, 30, 33, 40);
+            m_DX11Renderer.Resize(w, h);
+
+            m_DX11Renderer.Present(m_SoftwareRenderer.GetFramebuffer(), false);
+        });
 }
 
 void Application::Run()
@@ -29,16 +38,12 @@ void Application::HandleEvents()
         return;
     }
 
-    if (m_Window.GetWidth() != m_SoftwareRenderer.GetWidth() || m_Window.GetHeight() != m_SoftwareRenderer.GetHeight())
+    uint32_t ww = m_Window.GetWidth();
+    uint32_t wh = m_Window.GetHeight();
+    if (ww > 0 && wh > 0 && (ww != m_SoftwareRenderer.GetWidth() || wh != m_SoftwareRenderer.GetHeight()))
     {
-        uint32_t w = m_Window.GetWidth();
-        uint32_t h = m_Window.GetHeight();
-        if (w > 0 && h > 0)
-        {
-            m_SoftwareRenderer.Resize(w, h);
-            m_DX11Renderer.Resize(w, h);
-            m_SoftwareRenderer.Clear(30, 33, 40);
-        }
+        m_SoftwareRenderer.ResizeCanvas(ww, wh, 30, 33, 40);
+        m_DX11Renderer.Resize(ww, wh);
     }
 }
 
@@ -56,7 +61,7 @@ void Application::Update(float deltaTime)
 
     if (input.IsKeyPressed(KeyCode::Space))
     {
-        m_SoftwareRenderer.Clear(30, 33, 40); // Reset sketchpad canvas
+        m_SoftwareRenderer.Clear(30, 33, 40);
     }
 
     if (input.IsMouseButtonPressed(MouseButton::Left))

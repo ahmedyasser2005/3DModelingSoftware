@@ -1,6 +1,8 @@
 #include "Win32Window.h"
 #include <stdexcept>
 
+static constexpr UINT_PTR RESIZE_TIMER_ID = 1;
+
 LRESULT CALLBACK Win32Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Win32Window* pWindow = reinterpret_cast<Win32Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
@@ -22,9 +24,46 @@ LRESULT CALLBACK Win32Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wPara
             return 0;
 
         case WM_SIZE:
-            pWindow->m_Width = static_cast<uint32_t>(LOWORD(lParam));
-            pWindow->m_Height = static_cast<uint32_t>(HIWORD(lParam));
+        {
+            uint32_t newW = static_cast<uint32_t>(LOWORD(lParam));
+            uint32_t newH = static_cast<uint32_t>(HIWORD(lParam));
+            if (newW > 0 && newH > 0 && (newW != pWindow->m_Width || newH != pWindow->m_Height))
+            {
+                pWindow->m_Width = newW;
+                pWindow->m_Height = newH;
+                if (pWindow->m_ResizeCallback)
+                    pWindow->m_ResizeCallback(newW, newH);
+            }
             return 0;
+        }
+
+        case WM_ENTERSIZEMOVE:
+            SetTimer(hwnd, RESIZE_TIMER_ID, 1, nullptr); // ~1 ms tick
+            return 0;
+
+        case WM_EXITSIZEMOVE:
+            KillTimer(hwnd, RESIZE_TIMER_ID);
+            return 0;
+
+        case WM_TIMER:
+        {
+            if (wParam != RESIZE_TIMER_ID)
+                break;
+
+            RECT rc = {};
+            GetClientRect(hwnd, &rc);
+            uint32_t newW = static_cast<uint32_t>(rc.right - rc.left);
+            uint32_t newH = static_cast<uint32_t>(rc.bottom - rc.top);
+
+            if (newW > 0 && newH > 0 && (newW != pWindow->m_Width || newH != pWindow->m_Height))
+            {
+                pWindow->m_Width = newW;
+                pWindow->m_Height = newH;
+                if (pWindow->m_ResizeCallback)
+                    pWindow->m_ResizeCallback(newW, newH);
+            }
+            return 0;
+        }
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
@@ -146,9 +185,7 @@ Win32Window::Win32Window(const WindowDesc& desc) : m_Width(desc.Width), m_Height
                                 this);
 
     if (!hWnd)
-    {
         throw std::runtime_error("Failed to construct system window instance handle.");
-    }
 
     m_WindowHandle = reinterpret_cast<void*>(hWnd);
     ShowWindow(hWnd, SW_SHOW);
@@ -157,9 +194,7 @@ Win32Window::Win32Window(const WindowDesc& desc) : m_Width(desc.Width), m_Height
 Win32Window::~Win32Window()
 {
     if (m_WindowHandle)
-    {
         DestroyWindow(reinterpret_cast<HWND>(m_WindowHandle));
-    }
 }
 
 bool Win32Window::ProcessMessages() const noexcept
@@ -168,9 +203,7 @@ bool Win32Window::ProcessMessages() const noexcept
     while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
     {
         if (msg.message == WM_QUIT)
-        {
             return false;
-        }
         TranslateMessage(&msg);
         DispatchMessageW(&msg);
     }
