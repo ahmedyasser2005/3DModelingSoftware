@@ -1,0 +1,48 @@
+#pragma once
+
+#include "Input.h"
+#include "Win32API.h"
+#include <cstdint>
+#include <string_view>
+
+struct WindowDesc
+{
+    std::wstring_view Title = L"3D Modeling App";
+    uint32_t Width = 1280;
+    uint32_t Height = 720;
+};
+
+class Win32Window final
+{
+  public:
+    explicit Win32Window(const WindowDesc& desc, Input& inputMiddleman);
+    ~Win32Window();
+    Win32Window(const Win32Window&) = delete;
+    Win32Window& operator=(const Win32Window&) = delete;
+    Win32Window(Win32Window&&) = delete;
+    Win32Window& operator=(Win32Window&&) = delete;
+
+    [[nodiscard]] bool ProcessMessages() const noexcept;
+
+    [[nodiscard]] void* GetNativeHandle() const noexcept
+    {
+        return m_WindowHandle;
+    }
+    [[nodiscard]] uint32_t GetWidth() const noexcept
+    {
+        return m_Width;
+    }
+    [[nodiscard]] uint32_t GetHeight() const noexcept
+    {
+        return m_Height;
+    }
+
+  private:
+    friend LRESULT CALLBACK WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+    void* m_WindowHandle = nullptr;
+    void* m_InstanceHandle = nullptr;
+    uint32_t m_Width = 0;
+    uint32_t m_Height = 0;
+    Input* m_Input = nullptr;
+};
