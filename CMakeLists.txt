@@ -7,17 +7,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(${PROJECT_NAME}
     "src/Main.cpp"
 
-    "src/Core/Window.h"
-    "src/Core/Window.cpp"
+    "src/Platform/Input.h"
+    "src/Platform/Win32API.h"
+    "src/Platform/Win32Window.h"
+    "src/Platform/Win32Window.cpp"
     
-    "src/Core/Rasterizer.h"
-    "src/Core/Framebuffer.h"
+    "src/Renderer/DX11Renderer.h"
+    "src/Renderer/DX11Renderer.cpp"
     
-    "src/Core/Renderer.h"
-    "src/Core/Renderer.cpp"
+    "src/Renderer/SoftwareRenderer.h"
+    "src/Renderer/SoftwareRenderer.cpp"
 
-    "src/Core/Application.h"
-    "src/Core/Application.cpp"
+    "src/Application/Application.h"
+    "src/Application/Application.cpp"
 )
+
+target_include_directories(${PROJECT_NAME} PUBLIC "src/")
 
 target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler)
