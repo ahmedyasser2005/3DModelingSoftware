@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 
 enum class KeyCode : uint8_t
@@ -58,16 +59,58 @@ enum class MouseButton : uint8_t
     Middle
 };
 
-class Input
+class Input final
 {
   public:
-    virtual ~Input() = default;
+    Input() = default;
+    ~Input() = default;
 
-    virtual bool IsKeyPressed(KeyCode key) = 0;
-    virtual bool IsKeyReleased(KeyCode key) = 0;
+    [[nodiscard]] bool IsKeyPressed(KeyCode key) const noexcept
+    {
+        return m_KeyStates[static_cast<size_t>(key)];
+    }
 
-    virtual bool IsMouseButtonPressed(MouseButton button) = 0;
-    virtual bool IsMouseButtonReleased(MouseButton button) = 0;
-    virtual bool IsMouseMove(int32_t x, int32_t y) = 0;
-    virtual bool IsMouseScroll(float delta) = 0;
+    [[nodiscard]] bool IsKeyReleased(KeyCode key) const noexcept
+    {
+        return !m_KeyStates[static_cast<size_t>(key)];
+    }
+
+    [[nodiscard]] bool IsMouseButtonPressed(MouseButton button) const noexcept
+    {
+        return m_MouseStates[static_cast<size_t>(button)];
+    }
+
+    [[nodiscard]] int32_t GetMouseX() const noexcept
+    {
+        return m_MouseX;
+    }
+    [[nodiscard]] int32_t GetMouseY() const noexcept
+    {
+        return m_MouseY;
+    }
+
+    void UpdateKeyState(KeyCode key, bool isDown) noexcept
+    {
+        if (key != KeyCode::Unknown)
+        {
+            m_KeyStates[static_cast<size_t>(key)] = isDown;
+        }
+    }
+
+    void UpdateMouseState(MouseButton button, bool isDown) noexcept
+    {
+        m_MouseStates[static_cast<size_t>(button)] = isDown;
+    }
+
+    void UpdateMousePosition(int32_t x, int32_t y) noexcept
+    {
+        m_MouseX = x;
+        m_MouseY = y;
+    }
+
+  private:
+    std::array<bool, 256> m_KeyStates = { false };
+    std::array<bool, 3> m_MouseStates = { false };
+    int32_t m_MouseX = 0;
+    int32_t m_MouseY = 0;
 };

@@ -7,7 +7,7 @@
 
 struct WindowDesc
 {
-    std::wstring_view Title = L"3D Modeling App";
+    std::wstring_view Title = L"No Window Title.";
     uint32_t Width = 1280;
     uint32_t Height = 720;
 };
@@ -15,8 +15,9 @@ struct WindowDesc
 class Win32Window final
 {
   public:
-    explicit Win32Window(const WindowDesc& desc, Input& inputMiddleman);
+    explicit Win32Window(const WindowDesc& desc);
     ~Win32Window();
+
     Win32Window(const Win32Window&) = delete;
     Win32Window& operator=(const Win32Window&) = delete;
     Win32Window(Win32Window&&) = delete;
@@ -24,9 +25,14 @@ class Win32Window final
 
     [[nodiscard]] bool ProcessMessages() const noexcept;
 
-    [[nodiscard]] void* GetNativeHandle() const noexcept
+    [[nodiscard]] const Input& GetInput() const noexcept
     {
-        return m_WindowHandle;
+        return m_Input;
+    }
+
+    [[nodiscard]] HWND GetNativeHandle() const noexcept
+    {
+        return static_cast<HWND>(m_WindowHandle);
     }
     [[nodiscard]] uint32_t GetWidth() const noexcept
     {
@@ -38,11 +44,11 @@ class Win32Window final
     }
 
   private:
-    friend LRESULT CALLBACK WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+  private:
     void* m_WindowHandle = nullptr;
-    void* m_InstanceHandle = nullptr;
+    Input m_Input;
     uint32_t m_Width = 0;
     uint32_t m_Height = 0;
-    Input* m_Input = nullptr;
 };

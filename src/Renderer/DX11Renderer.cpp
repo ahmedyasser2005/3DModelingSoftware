@@ -6,7 +6,7 @@
 void DX11Renderer::Initialize(HWND nativeWindowHandle, uint32_t width, uint32_t height)
 {
     if (!nativeWindowHandle)
-        throw std::runtime_error("Invalid window context handle.");
+        throw std::runtime_error("Invalid native window handle context provided.");
 
     m_Width = width;
     m_Height = height;
@@ -14,9 +14,9 @@ void DX11Renderer::Initialize(HWND nativeWindowHandle, uint32_t width, uint32_t 
     DXGI_SWAP_CHAIN_DESC scd = {};
     scd.BufferDesc.Width = m_Width;
     scd.BufferDesc.Height = m_Height;
-    scd.BufferDesc.RefreshRate.Numerator = 60;
-    scd.BufferDesc.RefreshRate.Denominator = 1;
-    scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    scd.BufferDesc.RefreshRate.Numerator = 0;
+    scd.BufferDesc.RefreshRate.Denominator = 0;
+    scd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     scd.SampleDesc.Count = 1;
     scd.SampleDesc.Quality = 0;
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -35,13 +35,13 @@ void DX11Renderer::Initialize(HWND nativeWindowHandle, uint32_t width, uint32_t 
                                                1,
                                                D3D11_SDK_VERSION,
                                                &scd,
-                                               &m_SwapChain,
-                                               &m_Device,
+                                               m_SwapChain.GetAddressOf(),
+                                               m_Device.GetAddressOf(),
                                                nullptr,
-                                               &m_DeviceContext);
+                                               m_DeviceContext.GetAddressOf());
 
     if (FAILED(hr))
-        throw std::runtime_error("Failed to generate DX11 context pipeline.");
+        throw std::runtime_error("Failed to initialize core Direct3D device contexts.");
 
     Resize(m_Width, m_Height);
 }
@@ -51,31 +51,31 @@ void DX11Renderer::Resize(uint32_t width, uint32_t height)
     if (!m_SwapChain)
         return;
 
-    m_RenderTargetView.Reset();
-    m_GPUTexture.Reset();
-
     m_Width = width;
     m_Height = height;
 
-    m_SwapChain->ResizeBuffers(0, m_Width, m_Height, DXGI_FORMAT_UNKNOWN, 0);
+    m_DeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+    m_RenderTargetView.Reset();
+    m_GPUTexture.Reset();
+
+    HRESULT hr = m_SwapChain->ResizeBuffers(0, m_Width, m_Height, DXGI_FORMAT_UNKNOWN, 0);
+    if (FAILED(hr))
+        return;
 
     Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
     m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
-    if (backBuffer)
-    {
-        m_Device->CreateRenderTargetView(backBuffer.Get(), nullptr, m_RenderTargetView.GetAddressOf());
-    }
 
-    // Allocate dynamic texture container matching sizing rules
+    m_Device->CreateRenderTargetView(backBuffer.Get(), nullptr, m_RenderTargetView.GetAddressOf());
+
     D3D11_TEXTURE2D_DESC td = {};
     td.Width = m_Width;
     td.Height = m_Height;
     td.MipLevels = 1;
     td.ArraySize = 1;
-    td.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // Formatted to accept 0xFFRRGGBB vectors directly
+    td.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     td.SampleDesc.Count = 1;
     td.SampleDesc.Quality = 0;
-    td.Usage = D3D11_USAGE_DYNAMIC; // Tailored for continuous high speed CPU data mapping
+    td.Usage = D3D11_USAGE_DYNAMIC;
     td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
     td.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
@@ -95,7 +95,6 @@ void DX11Renderer::Present(const std::vector<uint32_t>& framebuffer, bool vsync)
         const uint8_t* src = reinterpret_cast<const uint8_t*>(framebuffer.data());
         uint32_t rowBytes = m_Width * sizeof(uint32_t);
 
-        // Account for any GPU row pitch alignment padding variations
         for (uint32_t y = 0; y < m_Height; ++y)
         {
             std::memcpy(dst + (y * mapped.RowPitch), src + (y * rowBytes), rowBytes);
@@ -103,12 +102,22 @@ void DX11Renderer::Present(const std::vector<uint32_t>& framebuffer, bool vsync)
         m_DeviceContext->Unmap(m_GPUTexture.Get(), 0);
     }
 
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
-    m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
-    if (backBuffer)
-    {
-        m_DeviceContext->CopyResource(backBuffer.Get(), m_GPUTexture.Get());
-    }
+    m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), nullptr);
+
+    D3D11_VIEWPORT viewport = {};
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    viewport.Width = static_cast<float>(m_Width);
+    viewport.Height = static_cast<float>(m_Height);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    m_DeviceContext->RSSetViewports(1, &viewport);
+
+    Microsoft::WRL::ComPtr<ID3D11Resource> srcResource;
+    Microsoft::WRL::ComPtr<ID3D11Resource> dstResource;
+    m_GPUTexture.As(&srcResource);
+    m_RenderTargetView->GetResource(&dstResource);
+    m_DeviceContext->CopyResource(dstResource.Get(), srcResource.Get());
 
     m_SwapChain->Present(vsync ? 1 : 0, 0);
 }

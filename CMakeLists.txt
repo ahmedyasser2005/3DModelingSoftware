@@ -11,10 +11,11 @@ endif()
 
 
 add_library(Platform STATIC 
-    "src/Platform/Input.h"
     "src/Platform/Win32API.h"
     "src/Platform/Win32Window.h"
     "src/Platform/Win32Window.cpp"
+    "src/Platform/Input.h"
+    
 )
 target_include_directories(Platform PUBLIC "src/")
 
@@ -44,6 +45,14 @@ target_include_directories(SoftwareRenderer PUBLIC "src/")
 
 
 
+add_library(App STATIC
+    "src/Application/Application.h"
+    "src/Application/Application.cpp"
+)
+target_include_directories(App PUBLIC "src/")
+
+
+
 add_executable(${PROJECT_NAME} WIN32
     "src/Main.cpp"
 )
@@ -53,4 +62,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Platform 
     HardwareRenderer 
     SoftwareRenderer 
+    App
 )
