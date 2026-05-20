@@ -20,6 +20,30 @@ target_include_directories(Platform PUBLIC "src/")
 
 
 
+add_library(HardwareRenderer STATIC
+    "src/Renderer/DX11Renderer.h"
+    "src/Renderer/DX11Renderer.cpp"
+)
+target_include_directories(HardwareRenderer PUBLIC "src/")
+
+if(WIN32)
+    target_link_libraries(HardwareRenderer PUBLIC 
+        d3d11.lib 
+        dxgi.lib 
+        d3dcompiler.lib
+    )
+endif()
+
+
+
+add_library(SoftwareRenderer STATIC
+    "src/Renderer/SoftwareRenderer.h"
+    "src/Renderer/SoftwareRenderer.cpp"
+)
+target_include_directories(SoftwareRenderer PUBLIC "src/")
+
+
+
 add_executable(${PROJECT_NAME} WIN32
     "src/Main.cpp"
 )
@@ -27,4 +51,6 @@ add_executable(${PROJECT_NAME} WIN32
 target_include_directories(${PROJECT_NAME} PRIVATE "src/")
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     Platform 
+    HardwareRenderer 
+    SoftwareRenderer 
 )
