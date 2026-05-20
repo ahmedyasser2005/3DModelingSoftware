@@ -1,17 +1,21 @@
-#include "Core/Application.h"
-#include <iostream>
-#include <stdexcept>
+#ifndef APP_ENTRY_POINT
+#define APP_ENTRY_POINT
+#endif
+
+#include "Application/Application.h"
 
 int main()
 {
     try
     {
         Application app;
-        return app.Run();
+        app.Run();
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
-        std::cerr << "Fatal Exception Occurred: " << e.what() << std::endl;
+        MessageBoxA(nullptr, e.what(), "Critical Error Failure", MB_ICONERROR | MB_OK);
         return -1;
     }
+
+    return 0;
 }
