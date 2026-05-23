@@ -97,7 +97,7 @@ void Application::Update(float deltaTime)
      }
     if (input.IsKeyPressed(KeyCode::M))
     {
-        Draw::MidpointCircle(&m_SoftwareRenderer, 1000, 300, 120, 0xFF00FFFF);
+        Draw::CircleMidpoint(&m_SoftwareRenderer, 1000, 300, 120, 0xFF00FFFF);
     }
     if (input.IsKeyPressed(KeyCode::I))
     {
