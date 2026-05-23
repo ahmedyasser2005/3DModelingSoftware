@@ -20,8 +20,10 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
         switch (uMsg)
         {
         case WM_DESTROY:
+        {
             PostQuitMessage(0);
             return 0;
+        }
 
         case WM_SIZE:
         {
@@ -36,15 +38,16 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
             }
             return 0;
         }
-
         case WM_ENTERSIZEMOVE:
-            SetTimer(hwnd, RESIZE_TIMER_ID, 1, nullptr); // ~1 ms tick
+        {
+            SetTimer(hwnd, RESIZE_TIMER_ID, 10, nullptr); // ~10 ms tick
             return 0;
-
+        }
         case WM_EXITSIZEMOVE:
+        {
             KillTimer(hwnd, RESIZE_TIMER_ID);
             return 0;
-
+        }
         case WM_TIMER:
         {
             if (wParam != RESIZE_TIMER_ID)
@@ -130,23 +133,35 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
             return 0;
         }
         case WM_LBUTTONDOWN:
+        {
             pWindow->m_Input.UpdateMouseState(MouseButton::Left, true);
             return 0;
+        }
         case WM_LBUTTONUP:
+        {
             pWindow->m_Input.UpdateMouseState(MouseButton::Left, false);
             return 0;
+        }
         case WM_RBUTTONDOWN:
+        {
             pWindow->m_Input.UpdateMouseState(MouseButton::Right, true);
             return 0;
+        }
         case WM_RBUTTONUP:
+        {
             pWindow->m_Input.UpdateMouseState(MouseButton::Right, false);
             return 0;
+        }
         case WM_MBUTTONDOWN:
+        {
             pWindow->m_Input.UpdateMouseState(MouseButton::Middle, true);
             return 0;
+        }
         case WM_MBUTTONUP:
+        {
             pWindow->m_Input.UpdateMouseState(MouseButton::Middle, false);
             return 0;
+        }
         }
     }
 
