@@ -30,6 +30,8 @@ add_executable(${PROJECT_NAME} WIN32
 
     "src/Presenter/DX11Presenter.h"
     "src/Presenter/DX11Presenter.cpp"
+
+    "src/Renderer/Mesh.h"
     "src/Renderer/Renderer.h"
     "src/Renderer/Renderer.cpp"
 
@@ -43,8 +45,8 @@ add_executable(${PROJECT_NAME} WIN32
     "src/EditorUI/EditorUI.cpp"
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+target_include_directories(${PROJECT_NAME}
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
 if(WIN32)
