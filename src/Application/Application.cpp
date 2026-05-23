@@ -1,7 +1,7 @@
 #include "Application.h"
 #include <chrono>
 
-#define k_EditorBg 30, 33, 40
+#define k_EditorBg 30, 33, 40 // Sleek editor dark mode background
 using Clock = std::chrono::high_resolution_clock;
 
 Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 720 })
@@ -9,7 +9,7 @@ Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 72
     m_SoftwareRenderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
     m_DX11Renderer.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
 
-    m_SoftwareRenderer.Clear(k_EditorBg); // Sleek editor dark mode background
+    m_SoftwareRenderer.Clear(k_EditorBg);
 
     m_Window.SetResizeCallback(
         [this](uint32_t w, uint32_t h)
