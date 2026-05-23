@@ -47,10 +47,8 @@ void Application::HandleEvents()
     }
 }
 
-void Application::Update(float deltaTime)
+void Application::Update()
 {
-    (void)deltaTime;
-
     const Input& input = m_Window.GetInput();
 
     if (input.IsKeyPressed(KeyCode::Escape))

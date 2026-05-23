@@ -18,7 +18,7 @@ class Application final
 
   private:
     void HandleEvents();
-    void Update(float deltaTime);
+    void Update();
     void Render();
 
   private:

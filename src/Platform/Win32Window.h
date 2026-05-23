@@ -53,10 +53,11 @@ class Win32Window final
     static LRESULT CALLBACK WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
   private:
-    void* m_WindowHandle = nullptr;
     Input m_Input;
     uint32_t m_Width = 0;
     uint32_t m_Height = 0;
 
     std::function<void(uint32_t, uint32_t)> m_ResizeCallback;
+
+    void* m_WindowHandle = nullptr;
 };

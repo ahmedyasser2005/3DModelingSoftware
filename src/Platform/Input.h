@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <bitset>
 #include <cstdint>
 
 enum class KeyCode : uint8_t
@@ -109,8 +110,8 @@ class Input final
     }
 
   private:
-    std::array<bool, 256> m_KeyStates = { false };
-    std::array<bool, 3> m_MouseStates = { false };
+    std::bitset<256> m_KeyStates = {};
+    std::bitset<3> m_MouseStates = {};
     int32_t m_MouseX = 0;
     int32_t m_MouseY = 0;
 };
