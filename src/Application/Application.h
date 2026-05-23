@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Platform/Win32Window.h"
+#include "Platform/Window.h"
 #include "Renderer/DX11Renderer.h"
 #include "Renderer/SoftwareRenderer.h"
 
@@ -22,7 +22,7 @@ class Application final
     void Render();
 
   private:
-    Win32Window m_Window;
+    Window m_Window;
     SoftwareRenderer m_SoftwareRenderer;
     DX11Renderer m_DX11Renderer;
 

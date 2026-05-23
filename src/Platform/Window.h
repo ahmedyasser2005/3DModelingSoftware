@@ -13,16 +13,16 @@ struct WindowDesc
     uint32_t Height = 720;
 };
 
-class Win32Window final
+class Window final
 {
   public:
-    explicit Win32Window(const WindowDesc& desc);
-    ~Win32Window();
+    explicit Window(const WindowDesc& desc);
+    ~Window();
 
-    Win32Window(const Win32Window&) = delete;
-    Win32Window& operator=(const Win32Window&) = delete;
-    Win32Window(Win32Window&&) = delete;
-    Win32Window& operator=(Win32Window&&) = delete;
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
+    Window(Window&&) = delete;
+    Window& operator=(Window&&) = delete;
 
     [[nodiscard]] bool ProcessMessages() const noexcept;
 

@@ -12,8 +12,8 @@ endif()
 
 add_library(Platform STATIC 
     "src/Platform/Win32API.h"
-    "src/Platform/Win32Window.h"
-    "src/Platform/Win32Window.cpp"
+    "src/Platform/Window.h"
+    "src/Platform/Window.cpp"
     "src/Platform/Input.h"
     
 )

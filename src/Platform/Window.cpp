@@ -1,16 +1,16 @@
-#include "Win32Window.h"
+#include "Window.h"
 #include <stdexcept>
 
 static constexpr UINT_PTR RESIZE_TIMER_ID = 1;
 
-LRESULT CALLBACK Win32Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    Win32Window* pWindow = reinterpret_cast<Win32Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+    Window* pWindow = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
 
     if (uMsg == WM_NCCREATE)
     {
         CREATESTRUCTW* pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
-        pWindow = reinterpret_cast<Win32Window*>(pCreate->lpCreateParams);
+        pWindow = reinterpret_cast<Window*>(pCreate->lpCreateParams);
         SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));
         pWindow->m_WindowHandle = hwnd;
     }
@@ -153,7 +153,7 @@ LRESULT CALLBACK Win32Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wPara
     return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 
-Win32Window::Win32Window(const WindowDesc& desc) : m_Width(desc.Width), m_Height(desc.Height)
+Window::Window(const WindowDesc& desc) : m_Width(desc.Width), m_Height(desc.Height)
 {
     HINSTANCE hInstance = GetModuleHandleW(nullptr);
     const wchar_t* className = L"3DModelingSoftwareWindowClass";
@@ -191,13 +191,13 @@ Win32Window::Win32Window(const WindowDesc& desc) : m_Width(desc.Width), m_Height
     ShowWindow(hWnd, SW_SHOW);
 }
 
-Win32Window::~Win32Window()
+Window::~Window()
 {
     if (m_WindowHandle)
         DestroyWindow(reinterpret_cast<HWND>(m_WindowHandle));
 }
 
-bool Win32Window::ProcessMessages() const noexcept
+bool Window::ProcessMessages() const noexcept
 {
     MSG msg = {};
     while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
