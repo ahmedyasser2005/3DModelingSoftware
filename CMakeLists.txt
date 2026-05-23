@@ -8,7 +8,11 @@ if(MSVC)
     add_compile_options(/W4 /permissive-)
 endif()
 
-
+add_library(Draw STATIC
+    "src/Draw/Draw.h"
+    "src/Draw/Draw.cpp"
+)
+target_include_directories(Draw PUBLIC "src/")
 
 add_library(Platform STATIC 
     "src/Platform/Win32API.h"
@@ -19,7 +23,7 @@ add_library(Platform STATIC
 )
 target_include_directories(Platform PUBLIC "src/")
 
-
+set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "" CACHE INTERNAL "" FORCE)
 
 add_library(HardwareRenderer STATIC
     "src/Renderer/DX11Renderer.h"
@@ -61,6 +65,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "src/")
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     Platform 
     HardwareRenderer 
-    SoftwareRenderer 
+    SoftwareRenderer
+    Draw
     App
 )
