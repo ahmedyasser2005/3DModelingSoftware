@@ -40,3 +40,15 @@ void EditorUI::EndFrame()
     ImGui::EndFrame();
     ImGui::Render();
 }
+
+// Example function of EditorUI function
+// void EditorUI::CreateMainMenu()
+// {
+//     ImGui::Begin("Hello, world!");
+//     ImGui::Text("This is some useful text.");
+//     if (ImGui::Button("Button"))
+//     {
+//          ////////// DON'T IMPLEMENT IT, JUST LEAVE A COMMENT OF INTENTION HERE! //////////
+//     }
+//     ImGui::End();
+// }

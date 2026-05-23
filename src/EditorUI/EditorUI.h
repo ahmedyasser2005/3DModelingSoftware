@@ -13,4 +13,7 @@ class EditorUI final
     void Initialize(void* hwnd, void* device, void* context);
     void StartFrame();
     void EndFrame();
+
+    // Add here as many UI functions as needed.
+    // Example -> void CreateMainMenu();
 };

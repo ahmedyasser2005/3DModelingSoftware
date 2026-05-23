@@ -104,14 +104,8 @@ void Application::Update(const float& dt)
 
 void Application::Render()
 {
-
-    ImGui::Begin("Hello, world!");
-    ImGui::Text("This is some useful text.");
-
-    if (ImGui::Button("Button"))
-    {
-    }
-    ImGui::End();
+    // Add EditorUI drawing functons here like this:
+    // Example -> m_EditorUI.CreateMainMenu();
 }
 
 void Application::OnResize(uint32_t w, uint32_t h)
