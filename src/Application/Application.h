@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Platform/Window.h"
-#include "Renderer/DX11Renderer.h"
-#include "Renderer/SoftwareRenderer.h"
+#include "Presenter/DX11Presenter.h"
+#include "Renderer/Renderer.h"
 
 class Application final
 {
@@ -25,8 +25,8 @@ class Application final
 
   private:
     Window m_Window;
-    SoftwareRenderer m_SoftwareRenderer;
-    DX11Renderer m_DX11Renderer;
+    Renderer m_Renderer;
+    DX11Presenter m_DX11Presenter;
 
     bool m_IsRunning = true;
     bool m_ResizePending = false;

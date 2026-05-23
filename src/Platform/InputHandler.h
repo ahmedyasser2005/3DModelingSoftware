@@ -60,11 +60,11 @@ enum class MouseButton : uint8_t
     Middle
 };
 
-class Input final
+class InputHandler final
 {
   public:
-    Input() = default;
-    ~Input() = default;
+    InputHandler() = default;
+    ~InputHandler() = default;
 
     // IsKeyDown(KeyCode::Unknown) is still callable
     // and returns garbage state. Same for others as well.

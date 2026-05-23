@@ -106,13 +106,13 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
         {
-            pWindow->m_Input.UpdateKeyState(MapVK(wParam), true);
+            pWindow->m_InputHandler.UpdateKeyState(MapVK(wParam), true);
             return 0;
         }
         case WM_KEYUP:
         case WM_SYSKEYUP:
         {
-            pWindow->m_Input.UpdateKeyState(MapVK(wParam), false);
+            pWindow->m_InputHandler.UpdateKeyState(MapVK(wParam), false);
             return 0;
         }
 
@@ -120,37 +120,37 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
         {
             int32_t x = static_cast<int32_t>(LOWORD(lParam));
             int32_t y = static_cast<int32_t>(HIWORD(lParam));
-            pWindow->m_Input.UpdateMousePosition(x, y);
+            pWindow->m_InputHandler.UpdateMousePosition(x, y);
             return 0;
         }
         case WM_LBUTTONDOWN:
         {
-            pWindow->m_Input.UpdateMouseState(MouseButton::Left, true);
+            pWindow->m_InputHandler.UpdateMouseState(MouseButton::Left, true);
             return 0;
         }
         case WM_LBUTTONUP:
         {
-            pWindow->m_Input.UpdateMouseState(MouseButton::Left, false);
+            pWindow->m_InputHandler.UpdateMouseState(MouseButton::Left, false);
             return 0;
         }
         case WM_RBUTTONDOWN:
         {
-            pWindow->m_Input.UpdateMouseState(MouseButton::Right, true);
+            pWindow->m_InputHandler.UpdateMouseState(MouseButton::Right, true);
             return 0;
         }
         case WM_RBUTTONUP:
         {
-            pWindow->m_Input.UpdateMouseState(MouseButton::Right, false);
+            pWindow->m_InputHandler.UpdateMouseState(MouseButton::Right, false);
             return 0;
         }
         case WM_MBUTTONDOWN:
         {
-            pWindow->m_Input.UpdateMouseState(MouseButton::Middle, true);
+            pWindow->m_InputHandler.UpdateMouseState(MouseButton::Middle, true);
             return 0;
         }
         case WM_MBUTTONUP:
         {
-            pWindow->m_Input.UpdateMouseState(MouseButton::Middle, false);
+            pWindow->m_InputHandler.UpdateMouseState(MouseButton::Middle, false);
             return 0;
         }
         }

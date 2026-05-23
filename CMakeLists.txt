@@ -14,12 +14,12 @@ add_executable(${PROJECT_NAME} WIN32
     "src/Platform/Win32API.h"
     "src/Platform/Window.h"
     "src/Platform/Window.cpp"
-    "src/Platform/Input.h"
+    "src/Platform/InputHandler.h"
 
-    "src/Renderer/DX11Renderer.h"
-    "src/Renderer/DX11Renderer.cpp"
-    "src/Renderer/SoftwareRenderer.h"
-    "src/Renderer/SoftwareRenderer.cpp"
+    "src/Presenter/DX11Presenter.h"
+    "src/Presenter/DX11Presenter.cpp"
+    "src/Renderer/Renderer.h"
+    "src/Renderer/Renderer.cpp"
 
     "src/Draw/Draw.h"
     "src/Draw/Draw.cpp"

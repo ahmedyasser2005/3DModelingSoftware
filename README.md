@@ -21,7 +21,7 @@ The engine is built with a clean architecture separating the **software rasteriz
 - **Software Renderer**: Fast CPU-based rasterizer with dynamic canvas management
 - **DirectX 11 Backend**: High-performance hardware presentation with proper resource management
 - **Live Window Resizing**: Smooth resize handling during drag and release
-- **Input System**: Robust keyboard and mouse input handling
+- **InputHandler System**: Robust keyboard and mouse InputHandler handling
 - **Clean Architecture**: Modular design with separated concerns
 
 ### Interactive Drawing
@@ -58,12 +58,12 @@ The engine is built with a clean architecture separating the **software rasteriz
 │   │   ├── Win32Window.cpp
 │   │   ├── Win32Window.h
 │   │   ├── Win32API.h
-│   │   └── Input.h
+│   │   └── InputHandler.h
 │   ├── Renderer/
-│   │   ├── SoftwareRenderer.cpp
-│   │   ├── SoftwareRenderer.h
-│   │   ├── DX11Renderer.cpp
-│   │   └── DX11Renderer.h
+│   │   ├── Renderer.cpp
+│   │   ├── Renderer.h
+│   │   ├── DX11Presenter.cpp
+│   │   └── DX11Presenter.h
 │   └── Main.cpp
 ├── docs/
 │   └── imgs/
@@ -105,7 +105,7 @@ cmake --build --preset x64-debug
 
 ## Controls
 
-| Input              | Action                        |
+| InputHandler              | Action                        |
 |--------------------|-------------------------------|
 | **Left Mouse**     | Draw with 2x2 gold brush      |
 | **Space**          | Clear canvas                  |

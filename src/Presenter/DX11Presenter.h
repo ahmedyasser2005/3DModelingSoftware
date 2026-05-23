@@ -7,15 +7,15 @@
 #include <vector>
 #include <wrl/client.h>
 
-class DX11Renderer final
+class DX11Presenter final
 {
   public:
-    DX11Renderer() = default;
-    ~DX11Renderer() = default;
-    DX11Renderer(const DX11Renderer&) = delete;
-    DX11Renderer& operator=(const DX11Renderer&) = delete;
-    DX11Renderer(DX11Renderer&&) = delete;
-    DX11Renderer& operator=(DX11Renderer&&) = delete;
+    DX11Presenter() = default;
+    ~DX11Presenter() = default;
+    DX11Presenter(const DX11Presenter&) = delete;
+    DX11Presenter& operator=(const DX11Presenter&) = delete;
+    DX11Presenter(DX11Presenter&&) = delete;
+    DX11Presenter& operator=(DX11Presenter&&) = delete;
 
     void Initialize(HWND nativeWindowHandle, uint32_t width, uint32_t height);
     void Resize(uint32_t width, uint32_t height);

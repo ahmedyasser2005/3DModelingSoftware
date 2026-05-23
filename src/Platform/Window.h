@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Input.h"
+#include "InputHandler.h"
 #include "Win32API.h"
 #include <cstdint>
 #include <functional>
@@ -31,9 +31,9 @@ class Window final
         m_ResizeCallback = std::move(cb);
     }
 
-    [[nodiscard]] const Input& GetInput() const noexcept
+    [[nodiscard]] const InputHandler& GetInputHandler() const noexcept
     {
-        return m_Input;
+        return m_InputHandler;
     }
 
     [[nodiscard]] HWND GetNativeHandle() const noexcept
@@ -56,7 +56,7 @@ class Window final
 
   private:
     HWND m_WindowHandle = nullptr;
-    Input m_Input = {};
+    InputHandler m_InputHandler = {};
     uint32_t m_Width = 0;
     uint32_t m_Height = 0;
 

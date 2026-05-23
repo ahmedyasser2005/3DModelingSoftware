@@ -1,9 +1,9 @@
-#include "DX11Renderer.h"
+#include "DX11Presenter.h"
 #include <cstring>
 #include <d3d11.h>
 #include <stdexcept>
 
-void DX11Renderer::Initialize(HWND nativeWindowHandle, uint32_t width, uint32_t height)
+void DX11Presenter::Initialize(HWND nativeWindowHandle, uint32_t width, uint32_t height)
 {
     if (!nativeWindowHandle)
         throw std::runtime_error("Invalid native window handle context provided.");
@@ -46,7 +46,7 @@ void DX11Renderer::Initialize(HWND nativeWindowHandle, uint32_t width, uint32_t 
     Resize(m_Width, m_Height);
 }
 
-void DX11Renderer::Resize(uint32_t width, uint32_t height)
+void DX11Presenter::Resize(uint32_t width, uint32_t height)
 {
     if (!m_SwapChain)
         return;
@@ -86,7 +86,7 @@ void DX11Renderer::Resize(uint32_t width, uint32_t height)
         throw std::runtime_error("Failed to create staging texture.");
 }
 
-void DX11Renderer::Present(std::span<const uint32_t> framebuffer, bool vsync)
+void DX11Presenter::Present(std::span<const uint32_t> framebuffer, bool vsync)
 {
     if (!m_SwapChain || !m_GPUTexture || framebuffer.empty())
         return;

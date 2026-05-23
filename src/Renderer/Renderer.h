@@ -13,15 +13,15 @@
 // This supports future pan/zoom: when the user zooms out, the viewport
 // (m_Width x m_Height) shows a subset of the canvas without reallocation.
 
-class SoftwareRenderer final
+class Renderer final
 {
   public:
-    SoftwareRenderer() = default;
-    ~SoftwareRenderer() = default;
-    SoftwareRenderer(const SoftwareRenderer&) = delete;
-    SoftwareRenderer& operator=(const SoftwareRenderer&) = delete;
-    SoftwareRenderer(SoftwareRenderer&&) = delete;
-    SoftwareRenderer& operator=(SoftwareRenderer&&) = delete;
+    Renderer() = default;
+    ~Renderer() = default;
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+    Renderer(Renderer&&) = delete;
+    Renderer& operator=(Renderer&&) = delete;
 
     void Initialize(uint32_t width, uint32_t height);
     void Resize(uint32_t width, uint32_t height);

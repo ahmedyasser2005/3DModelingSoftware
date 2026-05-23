@@ -6,10 +6,10 @@ using Clock = std::chrono::high_resolution_clock;
 
 Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 720 })
 {
-    m_SoftwareRenderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
-    m_DX11Renderer.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
+    m_Renderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
+    m_DX11Presenter.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
 
-    m_SoftwareRenderer.Clear(k_EditorBg);
+    m_Renderer.Clear(k_EditorBg);
 
     m_Window.SetResizeCallback(
         [this](uint32_t w, uint32_t h)
@@ -47,7 +47,7 @@ void Application::HandleEvents()
 
     uint32_t ww = m_Window.GetWidth();
     uint32_t wh = m_Window.GetHeight();
-    if (ww > 0 && wh > 0 && (ww != m_SoftwareRenderer.GetWidth() || wh != m_SoftwareRenderer.GetHeight()))
+    if (ww > 0 && wh > 0 && (ww != m_Renderer.GetWidth() || wh != m_Renderer.GetHeight()))
     {
         OnResize(ww, wh);
     }
@@ -57,41 +57,41 @@ void Application::Update(const float& dt)
 {
     (void)dt;
 
-    const Input& input = m_Window.GetInput();
+    const InputHandler& InputHandler = m_Window.GetInputHandler();
 
-    if (input.IsKeyDown(KeyCode::Escape))
+    if (InputHandler.IsKeyDown(KeyCode::Escape))
     {
         m_IsRunning = false;
         return;
     }
 
-    if (input.IsKeyDown(KeyCode::Space))
+    if (InputHandler.IsKeyDown(KeyCode::Space))
     {
-        m_SoftwareRenderer.Clear(k_EditorBg);
+        m_Renderer.Clear(k_EditorBg);
     }
 
-    if (input.IsMouseButtonDown(MouseButton::Left))
+    if (InputHandler.IsMouseButtonDown(MouseButton::Left))
     {
-        int32_t mx = input.GetMouseX();
-        int32_t my = input.GetMouseY();
+        int32_t mx = InputHandler.GetMouseX();
+        int32_t my = InputHandler.GetMouseY();
 
         // Draw gold pixels using a steady 2x2 brush layout
-        m_SoftwareRenderer.PutPixel(mx, my, 255, 200, 0);
-        m_SoftwareRenderer.PutPixel(mx + 1, my, 255, 200, 0);
-        m_SoftwareRenderer.PutPixel(mx, my + 1, 255, 200, 0);
-        m_SoftwareRenderer.PutPixel(mx + 1, my + 1, 255, 200, 0);
+        m_Renderer.PutPixel(mx, my, 255, 200, 0);
+        m_Renderer.PutPixel(mx + 1, my, 255, 200, 0);
+        m_Renderer.PutPixel(mx, my + 1, 255, 200, 0);
+        m_Renderer.PutPixel(mx + 1, my + 1, 255, 200, 0);
     }
 }
 
 void Application::Render()
 {
-    m_DX11Renderer.Present(m_SoftwareRenderer.GetFramebuffer(), !m_ResizePending);
+    m_DX11Presenter.Present(m_Renderer.GetFramebuffer(), !m_ResizePending);
     m_ResizePending = false;
 }
 
 void Application::OnResize(uint32_t w, uint32_t h)
 {
-    m_SoftwareRenderer.ResizeCanvas(w, h, k_EditorBg);
-    m_DX11Renderer.Resize(w, h);
-    m_DX11Renderer.Present(m_SoftwareRenderer.GetFramebuffer(), !m_ResizePending);
+    m_Renderer.ResizeCanvas(w, h, k_EditorBg);
+    m_DX11Presenter.Resize(w, h);
+    m_DX11Presenter.Present(m_Renderer.GetFramebuffer(), !m_ResizePending);
 }

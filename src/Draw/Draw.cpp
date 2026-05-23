@@ -1,8 +1,8 @@
 #include "Draw.h"
-#include "Renderer/SoftwareRenderer.h"
+#include "Renderer/Renderer.h"
 #include <cmath>
 
-void Draw::LineBresenham(SoftwareRenderer& renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
+void Draw::LineBresenham(Renderer& renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
 {
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
@@ -36,7 +36,7 @@ void Draw::LineBresenham(SoftwareRenderer& renderer, int32_t x0, int32_t y0, int
 }
 
 void Draw::LineFractionalAccumulation(
-    SoftwareRenderer& renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
+    Renderer& renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
 {
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
@@ -97,7 +97,7 @@ void Draw::LineFractionalAccumulation(
     }
 }
 
-void Draw::LineDDA(SoftwareRenderer& renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
+void Draw::LineDDA(Renderer& renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
 {
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
@@ -128,7 +128,7 @@ void Draw::LineDDA(SoftwareRenderer& renderer, int32_t x0, int32_t y0, int32_t x
     }
 }
 
-void Draw::CircleBresenham(SoftwareRenderer& renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
+void Draw::CircleBresenham(Renderer& renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
 {
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
@@ -162,7 +162,7 @@ void Draw::CircleBresenham(SoftwareRenderer& renderer, int32_t cx, int32_t cy, i
     }
 }
 
-void Draw::CircleMidpoint(SoftwareRenderer& renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
+void Draw::CircleMidpoint(Renderer& renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
 {
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
@@ -196,7 +196,7 @@ void Draw::CircleMidpoint(SoftwareRenderer& renderer, int32_t cx, int32_t cy, in
     }
 }
 
-void Draw::CirclePolar(SoftwareRenderer& renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
+void Draw::CirclePolar(Renderer& renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
 {
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
@@ -221,7 +221,7 @@ void Draw::CirclePolar(SoftwareRenderer& renderer, int32_t cx, int32_t cy, int32
     }
 }
 
-void Draw::CircleCartesian(SoftwareRenderer& renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
+void Draw::CircleCartesian(Renderer& renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
 {
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
@@ -242,7 +242,7 @@ void Draw::CircleCartesian(SoftwareRenderer& renderer, int32_t cx, int32_t cy, i
     }
 }
 
-void Draw::EllipseMidpoint(SoftwareRenderer& renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+void Draw::EllipseMidpoint(Renderer& renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
 {
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
@@ -303,7 +303,7 @@ void Draw::EllipseMidpoint(SoftwareRenderer& renderer, int32_t cx, int32_t cy, i
 }
 
 void Draw::EllipseFractionalAccumulation(
-    SoftwareRenderer& renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+    Renderer& renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
 {
     if (rx <= 0 || ry <= 0)
         return;
@@ -372,7 +372,7 @@ void Draw::EllipseFractionalAccumulation(
     }
 }
 
-void Draw::EllipsePolar(SoftwareRenderer& renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+void Draw::EllipsePolar(Renderer& renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
 {
     if (rx <= 0 || ry <= 0)
         return;
@@ -397,7 +397,7 @@ void Draw::EllipsePolar(SoftwareRenderer& renderer, int32_t cx, int32_t cy, int3
     }
 }
 
-void Draw::EllipseCartesian(SoftwareRenderer& renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+void Draw::EllipseCartesian(Renderer& renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
 {
     if (rx <= 0 || ry <= 0)
         return;

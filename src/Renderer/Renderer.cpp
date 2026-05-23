@@ -1,4 +1,4 @@
-#include "SoftwareRenderer.h"
+#include "Renderer.h"
 #include <algorithm>
 #include <cstring>
 
@@ -6,7 +6,7 @@
     (static_cast<uint32_t>(a) << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) |            \
         static_cast<uint32_t>(b)
 
-void SoftwareRenderer::RebuildFramebuffer()
+void Renderer::RebuildFramebuffer()
 {
     m_Framebuffer.resize(static_cast<size_t>(m_Width) * m_Height);
 
@@ -18,12 +18,12 @@ void SoftwareRenderer::RebuildFramebuffer()
     }
 }
 
-void SoftwareRenderer::Initialize(uint32_t width, uint32_t height)
+void Renderer::Initialize(uint32_t width, uint32_t height)
 {
     Resize(width, height);
 }
 
-void SoftwareRenderer::Resize(uint32_t width, uint32_t height)
+void Renderer::Resize(uint32_t width, uint32_t height)
 {
     m_Width = m_CanvasW = width;
     m_Height = m_CanvasH = height;
@@ -32,7 +32,7 @@ void SoftwareRenderer::Resize(uint32_t width, uint32_t height)
     m_Framebuffer.assign(static_cast<size_t>(m_Width) * m_Height, PackRGBA(0, 0, 0, 255));
 }
 
-void SoftwareRenderer::ResizeCanvas(uint32_t newW, uint32_t newH, uint8_t bgR, uint8_t bgG, uint8_t bgB)
+void Renderer::ResizeCanvas(uint32_t newW, uint32_t newH, uint8_t bgR, uint8_t bgG, uint8_t bgB)
 {
     m_Width = newW;
     m_Height = newH;
@@ -61,7 +61,7 @@ void SoftwareRenderer::ResizeCanvas(uint32_t newW, uint32_t newH, uint8_t bgR, u
     RebuildFramebuffer();
 }
 
-void SoftwareRenderer::Clear(uint8_t r, uint8_t g, uint8_t b)
+void Renderer::Clear(uint8_t r, uint8_t g, uint8_t b)
 {
     const uint32_t color = PackRGBA(r, g, b, 255);
 
@@ -69,7 +69,7 @@ void SoftwareRenderer::Clear(uint8_t r, uint8_t g, uint8_t b)
     std::fill(m_Framebuffer.begin(), m_Framebuffer.end(), color);
 }
 
-void SoftwareRenderer::PutPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+void Renderer::PutPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     if (x < 0 || y < 0 || static_cast<uint32_t>(x) >= m_Width || static_cast<uint32_t>(y) >= m_Height)
         return;
