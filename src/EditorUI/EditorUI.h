@@ -1,5 +1,22 @@
 #pragma once
 
+// Keep track of what we want to draw if we use states
+enum class DrawingTool
+{
+    None,
+    BresenhamLine,
+    FractionalLine,
+    DDALine,
+    BresenhamCircle,
+    MidpointCircle,
+    PolarCircle,
+    CartesianCircle,
+    MidpointEllipse,
+    FractionalEllipse,
+    PolarEllipse,
+    CartesianEllipse
+};
+
 class EditorUI final
 {
   public:
@@ -14,6 +31,12 @@ class EditorUI final
     void StartFrame();
     void EndFrame();
 
-    // Add here as many UI functions as needed.
-    // Example -> void CreateMainMenu();
+    void BeginMasterDockspace();
+    void EndMasterDockspace();
+
+    // Updated declaration to accept your software renderer
+    void ShowEditorPanels(class Renderer& renderer);
+
+  private:
+    DrawingTool m_ActiveTool = DrawingTool::None;
 };
