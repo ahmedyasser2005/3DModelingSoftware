@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Platform/Win32API.h"
+
+#include "EditorUI/EditorUI.h"
 #include "Platform/Window.h"
 #include "Presenter/DX11Presenter.h"
 #include "Renderer/Renderer.h"
@@ -27,6 +30,7 @@ class Application final
     Window m_Window;
     Renderer m_Renderer;
     DX11Presenter m_DX11Presenter;
+    EditorUI m_EditorUI;
 
     bool m_IsRunning = true;
     bool m_ResizePending = false;

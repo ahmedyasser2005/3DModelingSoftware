@@ -1,6 +1,7 @@
 #include "DX11Presenter.h"
 #include <cstring>
 #include <d3d11.h>
+#include <imgui_impl_dx11.h>
 #include <stdexcept>
 
 void DX11Presenter::Initialize(HWND nativeWindowHandle, uint32_t width, uint32_t height)
@@ -114,6 +115,11 @@ void DX11Presenter::Present(std::span<const uint32_t> framebuffer, bool vsync)
     m_GPUTexture.As(&srcResource);
     m_RenderTargetView->GetResource(&dstResource);
     m_DeviceContext->CopyResource(dstResource.Get(), srcResource.Get());
+
+    // ImGui stuff.
+    m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), nullptr);
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    // End of ImGui Stuff
 
     m_SwapChain->Present(vsync ? 1 : 0, 0);
 }

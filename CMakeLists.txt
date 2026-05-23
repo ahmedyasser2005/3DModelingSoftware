@@ -8,6 +8,18 @@ if(MSVC)
     add_compile_options(/W4 /WX /permissive-)
 endif()
 
+add_library(imgui STATIC
+    "ext/imgui/imgui.cpp"
+    "ext/imgui/imgui_demo.cpp"
+    "ext/imgui/imgui_draw.cpp"
+    "ext/imgui/imgui_tables.cpp"
+    "ext/imgui/imgui_widgets.cpp"
+    "ext/imgui/backends/imgui_impl_dx11.cpp"
+    "ext/imgui/backends/imgui_impl_win32.cpp"
+)
+target_include_directories(imgui PUBLIC "ext/imgui" "ext/imgui/backends")
+
+
 add_executable(${PROJECT_NAME} WIN32
     "src/Main.cpp"
 
@@ -26,6 +38,9 @@ add_executable(${PROJECT_NAME} WIN32
 
     "src/Application/Application.h"
     "src/Application/Application.cpp"
+
+    "src/EditorUI/EditorUI.h"
+    "src/EditorUI/EditorUI.cpp"
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -33,5 +48,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler)
+    target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler PRIVATE imgui)
 endif()

@@ -22,6 +22,16 @@ class DX11Presenter final
 
     void Present(std::span<const uint32_t> framebuffer, bool vsync);
 
+    ID3D11Device* GetDevice()
+    {
+        return m_Device.Get();
+    }
+
+    ID3D11DeviceContext* GetContext()
+    {
+        return m_DeviceContext.Get();
+    }
+
   private:
     Microsoft::WRL::ComPtr<ID3D11Device> m_Device;
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContext;

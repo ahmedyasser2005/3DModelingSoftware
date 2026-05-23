@@ -1,4 +1,5 @@
 #include "Window.h"
+#include <imgui_impl_win32.h>
 #include <stdexcept>
 
 static constexpr UINT_PTR RESIZE_TIMER_ID = 1;
@@ -33,8 +34,13 @@ static KeyCode MapVK(WPARAM vk) noexcept
     }
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
+        return true;
+
     Window* pWindow = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
 
     if (uMsg == WM_NCCREATE)

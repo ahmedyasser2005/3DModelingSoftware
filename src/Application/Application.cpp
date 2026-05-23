@@ -1,5 +1,8 @@
 #include "Application.h"
 #include <chrono>
+#include <imgui.h>
+#include <imgui_impl_dx11.h>
+#include <imgui_impl_win32.h>
 
 #define k_EditorBg 30, 33, 40 // Sleek editor dark mode background
 using Clock = std::chrono::high_resolution_clock;
@@ -8,6 +11,7 @@ Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 72
 {
     m_Renderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
     m_DX11Presenter.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
+    m_EditorUI.Initialize(m_Window.GetNativeHandle(), m_DX11Presenter.GetDevice(), m_DX11Presenter.GetContext());
 
     m_Renderer.Clear(k_EditorBg);
 
@@ -21,19 +25,26 @@ Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 72
 
 void Application::Run()
 {
+    auto lastFrameTime = Clock::now();
+
     while (m_IsRunning)
     {
         HandleEvents();
         if (!m_IsRunning)
             break;
 
-        Clock::time_point m_LastFrameTime = Clock::now();
         auto now = Clock::now();
-        float dt = std::chrono::duration<float>(now - m_LastFrameTime).count();
-        m_LastFrameTime = now;
+        float dt = std::chrono::duration<float>(now - lastFrameTime).count();
+        lastFrameTime = now;
+
         Update(dt);
 
+        m_EditorUI.StartFrame();
         Render();
+        m_EditorUI.EndFrame();
+
+        m_DX11Presenter.Present(m_Renderer.GetFramebuffer(), !m_ResizePending);
+        m_ResizePending = false;
     }
 }
 
@@ -56,8 +67,17 @@ void Application::HandleEvents()
 void Application::Update(const float& dt)
 {
     (void)dt;
-
     const InputHandler& InputHandler = m_Window.GetInputHandler();
+    ImGuiIO& io = ImGui::GetIO();
+
+    // If ImGui is focused on a text box or widget,
+    // ignore keyboard inputs for app logic
+    if (io.WantCaptureKeyboard)
+        return;
+    // If ImGui is hovering over or dragging a window,
+    // ignore mouse inputs for canvas painting
+    if (io.WantCaptureMouse)
+        return;
 
     if (InputHandler.IsKeyDown(KeyCode::Escape))
     {
@@ -75,7 +95,6 @@ void Application::Update(const float& dt)
         int32_t mx = InputHandler.GetMouseX();
         int32_t my = InputHandler.GetMouseY();
 
-        // Draw gold pixels using a steady 2x2 brush layout
         m_Renderer.PutPixel(mx, my, 255, 200, 0);
         m_Renderer.PutPixel(mx + 1, my, 255, 200, 0);
         m_Renderer.PutPixel(mx, my + 1, 255, 200, 0);
@@ -85,8 +104,14 @@ void Application::Update(const float& dt)
 
 void Application::Render()
 {
-    m_DX11Presenter.Present(m_Renderer.GetFramebuffer(), !m_ResizePending);
-    m_ResizePending = false;
+
+    ImGui::Begin("Hello, world!");
+    ImGui::Text("This is some useful text.");
+
+    if (ImGui::Button("Button"))
+    {
+    }
+    ImGui::End();
 }
 
 void Application::OnResize(uint32_t w, uint32_t h)
