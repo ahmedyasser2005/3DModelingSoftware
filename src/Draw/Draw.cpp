@@ -1,10 +1,10 @@
 #include "Draw.h"
 #include "Renderer/SoftwareRenderer.h"
 #include <cmath>
-namespace Draw
-{
 
-void LineBresenham(SoftwareRenderer* renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
+using namespace Draw;
+
+void Draw::LineBresenham(SoftwareRenderer* renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
 {
     if (!renderer)
         return;
@@ -40,7 +40,7 @@ void LineBresenham(SoftwareRenderer* renderer, int32_t x0, int32_t y0, int32_t x
     }
 }
 
-void MidpointCircle(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
+void Draw::LineFractionalAccumulation(SoftwareRenderer* renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
 {
     if (!renderer)
         return;
@@ -49,35 +49,62 @@ void MidpointCircle(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t 
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
     uint8_t b = static_cast<uint8_t>(color & 0xFF);
 
-    int32_t x = 0;
-    int32_t y = radius;
-    int32_t d = 3 - 2 * radius;
+    int32_t dx = std::abs(x1 - x0);
+    int32_t dy = std::abs(y1 - y0);
 
-    while (y >= x)
+    int32_t sx = (x0 < x1) ? 1 : -1;
+    int32_t sy = (y0 < y1) ? 1 : -1;
+
+    int32_t x = x0;
+    int32_t y = y0;
+
+    float accumulator = 0.0f;
+
+    if (dx >= dy)
     {
-        renderer->PutPixel(cx + x, cy + y, r, g, b);
-        renderer->PutPixel(cx - x, cy + y, r, g, b);
-        renderer->PutPixel(cx + x, cy - y, r, g, b);
-        renderer->PutPixel(cx - x, cy - y, r, g, b);
-        renderer->PutPixel(cx + y, cy + x, r, g, b);
-        renderer->PutPixel(cx - y, cy + x, r, g, b);
-        renderer->PutPixel(cx + y, cy - x, r, g, b);
-        renderer->PutPixel(cx - y, cy - x, r, g, b);
-
-        x++;
-        if (d > 0)
+        if (dx == 0)
         {
-            y--;
-            d = d + 4 * (x - y) + 10;
+            renderer->PutPixel(x, y, r, g, b);
+            return;
         }
-        else
+
+        float slope = static_cast<float>(dy) / static_cast<float>(dx);
+
+        for (int32_t i = 0; i <= dx; ++i)
         {
-            d = d + 4 * x + 6;
+            renderer->PutPixel(x, y, r, g, b);
+
+            x += sx;
+            accumulator += slope;
+
+            if (accumulator >= 0.5f)
+            {
+                y += sy;
+                accumulator -= 1.0f;
+            }
+        }
+    }
+    else
+    {
+        float inverseSlope = static_cast<float>(dx) / static_cast<float>(dy);
+
+        for (int32_t i = 0; i <= dy; ++i)
+        {
+            renderer->PutPixel(x, y, r, g, b);
+
+            y += sy;
+            accumulator += inverseSlope;
+
+            if (accumulator >= 0.5f)
+            {
+                x += sx;
+                accumulator -= 1.0f;
+            }
         }
     }
 }
 
-void LineDDA(SoftwareRenderer* renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
+void Draw::LineDDA(SoftwareRenderer* renderer, int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
 {
     if (!renderer)
         return;
@@ -111,59 +138,7 @@ void LineDDA(SoftwareRenderer* renderer, int32_t x0, int32_t y0, int32_t x1, int
     }
 }
 
-void CircleCartesian(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
-{
-    if (!renderer)
-        return;
-
-    uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
-    uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
-    uint8_t b = static_cast<uint8_t>(color & 0xFF);
-
-    for (int32_t x = 0; x <= radius; ++x)
-    {
-        int32_t y = static_cast<int32_t>(std::round(std::sqrt(radius * radius - x * x)));
-
-        renderer->PutPixel(cx + x, cy + y, r, g, b);
-        renderer->PutPixel(cx - x, cy + y, r, g, b);
-        renderer->PutPixel(cx + x, cy - y, r, g, b);
-        renderer->PutPixel(cx - x, cy - y, r, g, b);
-        renderer->PutPixel(cx + y, cy + x, r, g, b);
-        renderer->PutPixel(cx - y, cy + x, r, g, b);
-        renderer->PutPixel(cx + y, cy - x, r, g, b);
-        renderer->PutPixel(cx - y, cy - x, r, g, b);
-    }
-}
-
-void CirclePolar(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
-{
-    if (!renderer)
-        return;
-
-    uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
-    uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
-    uint8_t b = static_cast<uint8_t>(color & 0xFF);
-
-    float dTheta = 1.0f / radius;
-    float pi2 = 2.0f * 3.1415926535f;
-
-    for (float theta = 0.0f; theta <= pi2 / 4.0f; theta += dTheta)
-    {
-        int32_t x = static_cast<int32_t>(std::round(radius * std::cos(theta)));
-        int32_t y = static_cast<int32_t>(std::round(radius * std::sin(theta)));
-
-        renderer->PutPixel(cx + x, cy + y, r, g, b);
-        renderer->PutPixel(cx - x, cy + y, r, g, b);
-        renderer->PutPixel(cx + x, cy - y, r, g, b);
-        renderer->PutPixel(cx - x, cy - y, r, g, b);
-        renderer->PutPixel(cx + y, cy + x, r, g, b);
-        renderer->PutPixel(cx - y, cy + x, r, g, b);
-        renderer->PutPixel(cx + y, cy - x, r, g, b);
-        renderer->PutPixel(cx - y, cy - x, r, g, b);
-    }
-}
-
-void CircleBresenham(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
+void Draw::CircleBresenham(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
 {
     if (!renderer)
         return;
@@ -200,64 +175,96 @@ void CircleBresenham(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t
     }
 }
 
-void EllipseCartesian(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+void Draw::CircleMidpoint(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
 {
-    if (!renderer || rx <= 0 || ry <= 0)
+    if (!renderer)
         return;
 
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
     uint8_t b = static_cast<uint8_t>(color & 0xFF);
 
-    for (int32_t x = 0; x <= rx; ++x)
-    {
-        float xNorm = static_cast<float>(x) / rx;
-        int32_t y = static_cast<int32_t>(std::round(ry * std::sqrt(1.0f - xNorm * xNorm)));
+    int32_t x = 0;
+    int32_t y = radius;
+    int32_t d = 3 - 2 * radius;
 
+    while (y >= x)
+    {
         renderer->PutPixel(cx + x, cy + y, r, g, b);
         renderer->PutPixel(cx - x, cy + y, r, g, b);
         renderer->PutPixel(cx + x, cy - y, r, g, b);
         renderer->PutPixel(cx - x, cy - y, r, g, b);
-    }
+        renderer->PutPixel(cx + y, cy + x, r, g, b);
+        renderer->PutPixel(cx - y, cy + x, r, g, b);
+        renderer->PutPixel(cx + y, cy - x, r, g, b);
+        renderer->PutPixel(cx - y, cy - x, r, g, b);
 
-    for (int32_t y = 0; y <= ry; ++y)
-    {
-        float yNorm = static_cast<float>(y) / ry;
-        int32_t x = static_cast<int32_t>(std::round(rx * std::sqrt(1.0f - yNorm * yNorm)));
-
-        renderer->PutPixel(cx + x, cy + y, r, g, b);
-        renderer->PutPixel(cx - x, cy + y, r, g, b);
-        renderer->PutPixel(cx + x, cy - y, r, g, b);
-        renderer->PutPixel(cx - x, cy - y, r, g, b);
+        x++;
+        if (d > 0)
+        {
+            y--;
+            d = d + 4 * (x - y) + 10;
+        }
+        else
+        {
+            d = d + 4 * x + 6;
+        }
     }
 }
 
-void EllipsePolar(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+void Draw::CirclePolar(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
 {
-    if (!renderer || rx <= 0 || ry <= 0)
+    if (!renderer)
         return;
 
     uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
     uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
     uint8_t b = static_cast<uint8_t>(color & 0xFF);
 
-    int32_t maxRadius = std::max(rx, ry);
-    float dTheta = 1.0f / maxRadius;
-    float piOver2 = 3.1415926535f / 2.0f;
+    float dTheta = 1.0f / radius;
+    float pi2 = 2.0f * 3.1415926535f;
 
-    for (float theta = 0.0f; theta <= piOver2; theta += dTheta)
+    for (float theta = 0.0f; theta <= pi2 / 4.0f; theta += dTheta)
     {
-        int32_t x = static_cast<int32_t>(std::round(rx * std::cos(theta)));
-        int32_t y = static_cast<int32_t>(std::round(ry * std::sin(theta)));
+        int32_t x = static_cast<int32_t>(std::round(radius * std::cos(theta)));
+        int32_t y = static_cast<int32_t>(std::round(radius * std::sin(theta)));
 
         renderer->PutPixel(cx + x, cy + y, r, g, b);
         renderer->PutPixel(cx - x, cy + y, r, g, b);
         renderer->PutPixel(cx + x, cy - y, r, g, b);
         renderer->PutPixel(cx - x, cy - y, r, g, b);
+        renderer->PutPixel(cx + y, cy + x, r, g, b);
+        renderer->PutPixel(cx - y, cy + x, r, g, b);
+        renderer->PutPixel(cx + y, cy - x, r, g, b);
+        renderer->PutPixel(cx - y, cy - x, r, g, b);
     }
 }
 
-void EllipseMidpoint(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+void Draw::CircleCartesian(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t radius, uint32_t color)
+{
+    if (!renderer)
+        return;
+
+    uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
+    uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
+    uint8_t b = static_cast<uint8_t>(color & 0xFF);
+
+    for (int32_t x = 0; x <= radius; ++x)
+    {
+        int32_t y = static_cast<int32_t>(std::round(std::sqrt(radius * radius - x * x)));
+
+        renderer->PutPixel(cx + x, cy + y, r, g, b);
+        renderer->PutPixel(cx - x, cy + y, r, g, b);
+        renderer->PutPixel(cx + x, cy - y, r, g, b);
+        renderer->PutPixel(cx - x, cy - y, r, g, b);
+        renderer->PutPixel(cx + y, cy + x, r, g, b);
+        renderer->PutPixel(cx - y, cy + x, r, g, b);
+        renderer->PutPixel(cx + y, cy - x, r, g, b);
+        renderer->PutPixel(cx - y, cy - x, r, g, b);
+    }
+}
+
+void Draw::EllipseMidpoint(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
 {
     if (!renderer)
         return;
@@ -320,4 +327,128 @@ void EllipseMidpoint(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t
     }
 }
 
+void Draw::EllipseFractionalAccumulation(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+{
+    if (!renderer || rx <= 0 || ry <= 0)
+        return;
+
+    uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
+    uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
+    uint8_t b = static_cast<uint8_t>(color & 0xFF);
+
+    int32_t rx2 = rx * rx;
+    int32_t ry2 = ry * ry;
+
+    int32_t x = 0;
+    int32_t y = ry;
+
+    int32_t px = 0;
+    int32_t py = 2 * rx2 * y;
+
+    float accumulator = 0.0f;
+
+    while (px < py)
+    {
+        renderer->PutPixel(cx + x, cy + y, r, g, b);
+        renderer->PutPixel(cx - x, cy + y, r, g, b);
+        renderer->PutPixel(cx + x, cy - y, r, g, b);
+        renderer->PutPixel(cx - x, cy - y, r, g, b);
+
+        x++;
+        px += 2 * ry2;
+
+        float slope = (static_cast<float>(ry2) * x) / (static_cast<float>(rx2) * y);
+        accumulator += slope;
+
+        if (accumulator >= 0.5f)
+        {
+            y--;
+            py -= 2 * rx2;
+            accumulator -= 1.0f;
+        }
+    }
+
+    accumulator = 0.0f;
+
+    while (y >= 0)
+    {
+        renderer->PutPixel(cx + x, cy + y, r, g, b);
+        renderer->PutPixel(cx - x, cy + y, r, g, b);
+        renderer->PutPixel(cx + x, cy - y, r, g, b);
+        renderer->PutPixel(cx - x, cy - y, r, g, b);
+
+        y--;
+        py -= 2 * rx2;
+
+        float inverseSlope = 0.0f;
+        if (x != 0)
+        {
+            inverseSlope = (static_cast<float>(rx2) * y) / (static_cast<float>(ry2) * x);
+        }
+        accumulator += inverseSlope;
+
+        if (accumulator >= 0.5f)
+        {
+            x++;
+            px += 2 * ry2;
+            accumulator -= 1.0f;
+        }
+    }
+}
+
+void Draw::EllipsePolar(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+{
+    if (!renderer || rx <= 0 || ry <= 0)
+        return;
+
+    uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
+    uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
+    uint8_t b = static_cast<uint8_t>(color & 0xFF);
+
+    int32_t maxRadius = std::max(rx, ry);
+    float dTheta = 1.0f / maxRadius;
+    float piOver2 = 3.1415926535f / 2.0f;
+
+    for (float theta = 0.0f; theta <= piOver2; theta += dTheta)
+    {
+        int32_t x = static_cast<int32_t>(std::round(rx * std::cos(theta)));
+        int32_t y = static_cast<int32_t>(std::round(ry * std::sin(theta)));
+
+        renderer->PutPixel(cx + x, cy + y, r, g, b);
+        renderer->PutPixel(cx - x, cy + y, r, g, b);
+        renderer->PutPixel(cx + x, cy - y, r, g, b);
+        renderer->PutPixel(cx - x, cy - y, r, g, b);
+    }
+}
+
+void Draw::EllipseCartesian(SoftwareRenderer* renderer, int32_t cx, int32_t cy, int32_t rx, int32_t ry, uint32_t color)
+{
+    if (!renderer || rx <= 0 || ry <= 0)
+        return;
+
+    uint8_t r = static_cast<uint8_t>((color >> 16) & 0xFF);
+    uint8_t g = static_cast<uint8_t>((color >> 8) & 0xFF);
+    uint8_t b = static_cast<uint8_t>(color & 0xFF);
+
+    for (int32_t x = 0; x <= rx; ++x)
+    {
+        float xNorm = static_cast<float>(x) / rx;
+        int32_t y = static_cast<int32_t>(std::round(ry * std::sqrt(1.0f - xNorm * xNorm)));
+
+        renderer->PutPixel(cx + x, cy + y, r, g, b);
+        renderer->PutPixel(cx - x, cy + y, r, g, b);
+        renderer->PutPixel(cx + x, cy - y, r, g, b);
+        renderer->PutPixel(cx - x, cy - y, r, g, b);
+    }
+
+    for (int32_t y = 0; y <= ry; ++y)
+    {
+        float yNorm = static_cast<float>(y) / ry;
+        int32_t x = static_cast<int32_t>(std::round(rx * std::sqrt(1.0f - yNorm * yNorm)));
+
+        renderer->PutPixel(cx + x, cy + y, r, g, b);
+        renderer->PutPixel(cx - x, cy + y, r, g, b);
+        renderer->PutPixel(cx + x, cy - y, r, g, b);
+        renderer->PutPixel(cx - x, cy - y, r, g, b);
+    }
 }
