@@ -19,6 +19,12 @@ add_library(imgui STATIC
 )
 target_include_directories(imgui PUBLIC "ext/imgui" "ext/imgui/backends")
 
+add_library(draw STATIC
+    "src/Draw/Line.cpp"
+    "src/Draw/Circle.cpp"
+    "src/Draw/Ellipse.cpp"
+)
+target_include_directories(draw PUBLIC "src/")
 
 add_executable(${PROJECT_NAME} WIN32
     "src/Main.cpp"
@@ -35,9 +41,6 @@ add_executable(${PROJECT_NAME} WIN32
     "src/Renderer/Renderer.h"
     "src/Renderer/Renderer.cpp"
 
-    "src/Draw/Draw.h"
-    "src/Draw/Draw.cpp"
-
     "src/Application/Application.h"
     "src/Application/Application.cpp"
 
@@ -50,5 +53,5 @@ target_include_directories(${PROJECT_NAME}
 )
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler PRIVATE imgui)
+    target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler PRIVATE imgui draw)
 endif()
