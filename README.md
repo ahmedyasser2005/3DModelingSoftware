@@ -24,12 +24,6 @@ The engine is built with a clean architecture separating the **software rasteriz
 - **InputHandler System**: Robust keyboard and mouse InputHandler handling
 - **Clean Architecture**: Modular design with separated concerns
 
-### Interactive Drawing
-- Real-time pixel drawing with **2x2 gold brush** (Left Mouse Button)
-- Clear canvas with **Space**
-- Dark editor theme (`#1E2128`)
-- Escape to quit
-
 ---
 
 ## Tech Stack
@@ -41,41 +35,6 @@ The engine is built with a clean architecture separating the **software rasteriz
 | Platform           | Win32 API                           |
 | Rendering          | Custom Software Renderer + DirectX 11 |
 | IDE Support        | Visual Studio 2022+                 |
-
----
-
-## Project Structure
-
-```bash
-.
-├── CMakeLists.txt
-├── CMakePresets.json
-├── src/
-│   ├── Application/
-│   │   ├── Application.cpp
-│   │   └── Application.h
-│   ├── Platform/
-│   │   ├── Win32Window.cpp
-│   │   ├── Win32Window.h
-│   │   ├── Win32API.h
-│   │   └── InputHandler.h
-│   ├── Renderer/
-│   │   ├── Renderer.cpp
-│   │   ├── Renderer.h
-│   │   ├── DX11Presenter.cpp
-│   │   └── DX11Presenter.h
-│   └── Main.cpp
-├── docs/
-│   └── imgs/
-│       └── 2026-5-21.png
-├── external/
-│   └── imgui/          # (planned for UI)
-├── Doxyfile
-├── LICENSE
-└── README.md
-```
-
----
 
 ## Building the Project
 
@@ -97,8 +56,8 @@ cmake --build --preset x64-debug
 ./out/build/x64-debug/3DModelingSoftware.exe
 ```
 
-### Other Presets Available
-- `x64-release`
+### Presets Available
+- `x64-debug` / `x64-release`
 - `x86-debug` / `x86-release`
 
 ---
@@ -123,7 +82,7 @@ cmake --build --preset x64-debug
 - [ ] Polygon Triangulation
 - [ ] Catmull-Clark & Loop Subdivision
 - [ ] Real-time Control Point Editing
-- [ ] ImGui Integration (Editor UI)
+- [x] ImGui Integration (Editor UI)
 - [ ] Camera System & 3D Navigation
 - [ ] Mesh Import/Export
 
