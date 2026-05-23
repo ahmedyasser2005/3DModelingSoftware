@@ -25,7 +25,7 @@ void Application::Run()
         if (!m_IsRunning)
             break;
 
-        Update(0.016f);
+        Update();
         Render();
     }
 }
