@@ -102,11 +102,17 @@ void Application::Update(const float& dt)
     }
 }
 
+
 void Application::Render()
 {
-    // Add EditorUI drawing functons here like this:
-    // Example -> m_EditorUI.CreateMainMenu();
+    m_EditorUI.BeginMasterDockspace();
+
+    // Pass your software renderer instance into the panels method
+    m_EditorUI.ShowEditorPanels(m_Renderer);
+
+    m_EditorUI.EndMasterDockspace();
 }
+
 
 void Application::OnResize(uint32_t w, uint32_t h)
 {
