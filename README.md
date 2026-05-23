@@ -78,7 +78,7 @@ cmake --build --preset x64-debug
 - [ ] Bézier Curves & B-Splines (De Boor Algorithm)
 - [ ] NURBS Surface Implementation
 - [ ] Bézier Surface Generation
-- [ ] Half-Edge Mesh Data Structure
+- [x] Half-Edge Mesh Data Structure
 - [ ] Polygon Triangulation
 - [ ] Catmull-Clark & Loop Subdivision
 - [ ] Real-time Control Point Editing
