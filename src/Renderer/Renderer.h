@@ -16,12 +16,12 @@
 class Renderer final
 {
   public:
-    Renderer() = default;
-    ~Renderer() = default;
-    Renderer(const Renderer&) = delete;
+    Renderer()                           = default;
+    ~Renderer()                          = default;
+    Renderer(const Renderer&)            = delete;
     Renderer& operator=(const Renderer&) = delete;
-    Renderer(Renderer&&) = delete;
-    Renderer& operator=(Renderer&&) = delete;
+    Renderer(Renderer&&)                 = delete;
+    Renderer& operator=(Renderer&&)      = delete;
 
     void Initialize(uint32_t width, uint32_t height);
     void Resize(uint32_t width, uint32_t height);
@@ -48,10 +48,10 @@ class Renderer final
     void RebuildFramebuffer();
 
     std::vector<uint32_t> m_Canvas;
-    uint32_t m_CanvasW = 0;
-    uint32_t m_CanvasH = 0;
+    uint32_t              m_CanvasW = 0;
+    uint32_t              m_CanvasH = 0;
 
     std::vector<uint32_t> m_Framebuffer;
-    uint32_t m_Width = 0;
-    uint32_t m_Height = 0;
+    uint32_t              m_Width  = 0;
+    uint32_t              m_Height = 0;
 };
