@@ -8,7 +8,7 @@
 
 struct WindowDesc
 {
-    std::wstring_view Title = L"No Window Title.";
+    std::wstring Title = L"Untitled";
     uint32_t Width = 1280;
     uint32_t Height = 720;
 };
@@ -24,7 +24,7 @@ class Window final
     Window(Window&&) = delete;
     Window& operator=(Window&&) = delete;
 
-    [[nodiscard]] bool ProcessMessages() const noexcept;
+    [[nodiscard]] bool ProcessMessages() noexcept;
 
     void SetResizeCallback(std::function<void(uint32_t, uint32_t)> cb) noexcept
     {
@@ -38,12 +38,14 @@ class Window final
 
     [[nodiscard]] HWND GetNativeHandle() const noexcept
     {
-        return static_cast<HWND>(m_WindowHandle);
+        return m_WindowHandle;
     }
+
     [[nodiscard]] uint32_t GetWidth() const noexcept
     {
         return m_Width;
     }
+
     [[nodiscard]] uint32_t GetHeight() const noexcept
     {
         return m_Height;
@@ -53,11 +55,10 @@ class Window final
     static LRESULT CALLBACK WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
   private:
-    Input m_Input;
+    HWND m_WindowHandle = nullptr;
+    Input m_Input = {};
     uint32_t m_Width = 0;
     uint32_t m_Height = 0;
 
     std::function<void(uint32_t, uint32_t)> m_ResizeCallback;
-
-    void* m_WindowHandle = nullptr;
 };

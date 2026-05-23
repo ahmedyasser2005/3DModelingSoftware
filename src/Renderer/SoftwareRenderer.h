@@ -3,6 +3,16 @@
 #include <cstdint>
 #include <vector>
 
+// Two-buffer design:
+//   m_Canvas       — the full scene backing store. Only grows. Coordinates are
+//                    in canvas space and may exceed the current viewport size.
+//
+//   m_Framebuffer  — viewport-sized slice of the canvas sent to DX11 each
+//                    frame. Rebuilt by RebuildFramebuffer() after any resize.
+//
+// This supports future pan/zoom: when the user zooms out, the viewport
+// (m_Width x m_Height) shows a subset of the canvas without reallocation.
+
 class SoftwareRenderer final
 {
   public:
@@ -18,7 +28,7 @@ class SoftwareRenderer final
     void ResizeCanvas(uint32_t width, uint32_t height, uint8_t bgR, uint8_t bgG, uint8_t bgB);
 
     void Clear(uint8_t r, uint8_t g, uint8_t b);
-    void PutPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b);
+    void PutPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
 
     [[nodiscard]] const std::vector<uint32_t>& GetFramebuffer() const noexcept
     {

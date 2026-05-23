@@ -3,6 +3,7 @@
 #include "Platform/Win32API.h"
 #include <cstdint>
 #include <d3d11.h>
+#include <span>
 #include <vector>
 #include <wrl/client.h>
 
@@ -19,7 +20,7 @@ class DX11Renderer final
     void Initialize(HWND nativeWindowHandle, uint32_t width, uint32_t height);
     void Resize(uint32_t width, uint32_t height);
 
-    void Present(const std::vector<uint32_t>& framebuffer, bool vsync);
+    void Present(std::span<const uint32_t> framebuffer, bool vsync);
 
   private:
     Microsoft::WRL::ComPtr<ID3D11Device> m_Device;

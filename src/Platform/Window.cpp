@@ -3,6 +3,36 @@
 
 static constexpr UINT_PTR RESIZE_TIMER_ID = 1;
 
+static KeyCode MapVK(WPARAM vk) noexcept
+{
+    if (vk >= 'A' && vk <= 'Z')
+        return static_cast<KeyCode>(static_cast<uint8_t>(KeyCode::A) + (vk - 'A'));
+    if (vk >= '0' && vk <= '9')
+        return static_cast<KeyCode>(static_cast<uint8_t>(KeyCode::D0) + (vk - '0'));
+
+    switch (vk)
+    {
+    case VK_ESCAPE:
+        return KeyCode::Escape;
+    case VK_SPACE:
+        return KeyCode::Space;
+    case VK_RETURN:
+        return KeyCode::Enter;
+    case VK_BACK:
+        return KeyCode::Backspace;
+    case VK_TAB:
+        return KeyCode::Tab;
+    case VK_SHIFT:
+        return KeyCode::Shift;
+    case VK_CONTROL:
+        return KeyCode::Control;
+    case VK_MENU:
+        return KeyCode::Alt;
+    default:
+        return KeyCode::Unknown;
+    }
+}
+
 LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Window* pWindow = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
@@ -25,19 +55,11 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
             return 0;
         }
 
-        case WM_SIZE:
-        {
-            uint32_t newW = static_cast<uint32_t>(LOWORD(lParam));
-            uint32_t newH = static_cast<uint32_t>(HIWORD(lParam));
-            if (newW > 0 && newH > 0 && (newW != pWindow->m_Width || newH != pWindow->m_Height))
-            {
-                pWindow->m_Width = newW;
-                pWindow->m_Height = newH;
-                if (pWindow->m_ResizeCallback)
-                    pWindow->m_ResizeCallback(newW, newH);
-            }
-            return 0;
-        }
+        // Start of Timer method of "Rendering While Resizing"
+        /* The way I handled "rendering while resizing the window"
+         * is about making a timer message that is sent every 10ms
+         * so every 10 ms the window gets redrawn (while resizing).
+         */
         case WM_ENTERSIZEMOVE:
         {
             SetTimer(hwnd, RESIZE_TIMER_ID, 10, nullptr); // ~10 ms tick
@@ -67,61 +89,30 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
             }
             return 0;
         }
+        case WM_SIZE:
+        {
+            uint32_t newW = static_cast<uint32_t>(LOWORD(lParam));
+            uint32_t newH = static_cast<uint32_t>(HIWORD(lParam));
+            if (newW > 0 && newH > 0 && (newW != pWindow->m_Width || newH != pWindow->m_Height))
+            {
+                pWindow->m_Width = newW;
+                pWindow->m_Height = newH;
+                if (pWindow->m_ResizeCallback)
+                    pWindow->m_ResizeCallback(newW, newH);
+            }
+            return 0;
+        } // End of Timer method of "Rendering While Resizing"
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
         {
-            KeyCode key = KeyCode::Unknown;
-            if (wParam >= 'A' && wParam <= 'Z')
-                key = static_cast<KeyCode>(static_cast<uint8_t>(KeyCode::A) + (wParam - 'A'));
-            else if (wParam >= '0' && wParam <= '9')
-                key = static_cast<KeyCode>(static_cast<uint8_t>(KeyCode::D0) + (wParam - '0'));
-            else if (wParam == VK_ESCAPE)
-                key = KeyCode::Escape;
-            else if (wParam == VK_SPACE)
-                key = KeyCode::Space;
-            else if (wParam == VK_RETURN)
-                key = KeyCode::Enter;
-            else if (wParam == VK_BACK)
-                key = KeyCode::Backspace;
-            else if (wParam == VK_TAB)
-                key = KeyCode::Tab;
-            else if (wParam == VK_SHIFT)
-                key = KeyCode::Shift;
-            else if (wParam == VK_CONTROL)
-                key = KeyCode::Control;
-            else if (wParam == VK_MENU)
-                key = KeyCode::Alt;
-
-            pWindow->m_Input.UpdateKeyState(key, true);
+            pWindow->m_Input.UpdateKeyState(MapVK(wParam), true);
             return 0;
         }
         case WM_KEYUP:
         case WM_SYSKEYUP:
         {
-            KeyCode key = KeyCode::Unknown;
-            if (wParam >= 'A' && wParam <= 'Z')
-                key = static_cast<KeyCode>(static_cast<uint8_t>(KeyCode::A) + (wParam - 'A'));
-            else if (wParam >= '0' && wParam <= '9')
-                key = static_cast<KeyCode>(static_cast<uint8_t>(KeyCode::D0) + (wParam - '0'));
-            else if (wParam == VK_ESCAPE)
-                key = KeyCode::Escape;
-            else if (wParam == VK_SPACE)
-                key = KeyCode::Space;
-            else if (wParam == VK_RETURN)
-                key = KeyCode::Enter;
-            else if (wParam == VK_BACK)
-                key = KeyCode::Backspace;
-            else if (wParam == VK_TAB)
-                key = KeyCode::Tab;
-            else if (wParam == VK_SHIFT)
-                key = KeyCode::Shift;
-            else if (wParam == VK_CONTROL)
-                key = KeyCode::Control;
-            else if (wParam == VK_MENU)
-                key = KeyCode::Alt;
-
-            pWindow->m_Input.UpdateKeyState(key, false);
+            pWindow->m_Input.UpdateKeyState(MapVK(wParam), false);
             return 0;
         }
 
@@ -202,7 +193,7 @@ Window::Window(const WindowDesc& desc) : m_Width(desc.Width), m_Height(desc.Heig
     if (!hWnd)
         throw std::runtime_error("Failed to construct system window instance handle.");
 
-    m_WindowHandle = reinterpret_cast<void*>(hWnd);
+    m_WindowHandle = hWnd;
     ShowWindow(hWnd, SW_SHOW);
 }
 
@@ -212,7 +203,7 @@ Window::~Window()
         DestroyWindow(reinterpret_cast<HWND>(m_WindowHandle));
 }
 
-bool Window::ProcessMessages() const noexcept
+bool Window::ProcessMessages() noexcept
 {
     MSG msg = {};
     while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))

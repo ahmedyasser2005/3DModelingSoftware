@@ -1,19 +1,21 @@
 #include "Application.h"
+#include <chrono>
+
+#define k_EditorBg 30, 33, 40
+using Clock = std::chrono::high_resolution_clock;
 
 Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 720 })
 {
     m_SoftwareRenderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
     m_DX11Renderer.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
 
-    m_SoftwareRenderer.Clear(30, 33, 40); // Sleek editor dark mode background
+    m_SoftwareRenderer.Clear(k_EditorBg); // Sleek editor dark mode background
 
     m_Window.SetResizeCallback(
         [this](uint32_t w, uint32_t h)
         {
-            m_SoftwareRenderer.ResizeCanvas(w, h, 30, 33, 40);
-            m_DX11Renderer.Resize(w, h);
-
-            m_DX11Renderer.Present(m_SoftwareRenderer.GetFramebuffer(), false);
+            OnResize(w, h);
+            m_ResizePending = true;
         });
 }
 
@@ -25,7 +27,12 @@ void Application::Run()
         if (!m_IsRunning)
             break;
 
-        Update();
+        Clock::time_point m_LastFrameTime = Clock::now();
+        auto now = Clock::now();
+        float dt = std::chrono::duration<float>(now - m_LastFrameTime).count();
+        m_LastFrameTime = now;
+        Update(dt);
+
         Render();
     }
 }
@@ -42,27 +49,28 @@ void Application::HandleEvents()
     uint32_t wh = m_Window.GetHeight();
     if (ww > 0 && wh > 0 && (ww != m_SoftwareRenderer.GetWidth() || wh != m_SoftwareRenderer.GetHeight()))
     {
-        m_SoftwareRenderer.ResizeCanvas(ww, wh, 30, 33, 40);
-        m_DX11Renderer.Resize(ww, wh);
+        OnResize(ww, wh);
     }
 }
 
-void Application::Update()
+void Application::Update(const float& dt)
 {
+    (void)dt;
+
     const Input& input = m_Window.GetInput();
 
-    if (input.IsKeyPressed(KeyCode::Escape))
+    if (input.IsKeyDown(KeyCode::Escape))
     {
         m_IsRunning = false;
         return;
     }
 
-    if (input.IsKeyPressed(KeyCode::Space))
+    if (input.IsKeyDown(KeyCode::Space))
     {
-        m_SoftwareRenderer.Clear(30, 33, 40);
+        m_SoftwareRenderer.Clear(k_EditorBg);
     }
 
-    if (input.IsMouseButtonPressed(MouseButton::Left))
+    if (input.IsMouseButtonDown(MouseButton::Left))
     {
         int32_t mx = input.GetMouseX();
         int32_t my = input.GetMouseY();
@@ -77,5 +85,13 @@ void Application::Update()
 
 void Application::Render()
 {
-    m_DX11Renderer.Present(m_SoftwareRenderer.GetFramebuffer(), true);
+    m_DX11Renderer.Present(m_SoftwareRenderer.GetFramebuffer(), !m_ResizePending);
+    m_ResizePending = false;
+}
+
+void Application::OnResize(uint32_t w, uint32_t h)
+{
+    m_SoftwareRenderer.ResizeCanvas(w, h, k_EditorBg);
+    m_DX11Renderer.Resize(w, h);
+    m_DX11Renderer.Present(m_SoftwareRenderer.GetFramebuffer(), !m_ResizePending);
 }

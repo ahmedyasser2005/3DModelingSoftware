@@ -66,20 +66,32 @@ class Input final
     Input() = default;
     ~Input() = default;
 
-    [[nodiscard]] bool IsKeyPressed(KeyCode key) const noexcept
+    // IsKeyDown(KeyCode::Unknown) is still callable
+    // and returns garbage state. Same for others as well.
+
+    [[nodiscard]] bool IsKeyDown(KeyCode key) const noexcept
     {
         return m_KeyStates[static_cast<size_t>(key)];
     }
-
-    [[nodiscard]] bool IsKeyReleased(KeyCode key) const noexcept
+    [[nodiscard]] bool IsKeyUp(KeyCode key) const noexcept
     {
         return !m_KeyStates[static_cast<size_t>(key)];
     }
 
-    [[nodiscard]] bool IsMouseButtonPressed(MouseButton button) const noexcept
+    [[nodiscard]] bool IsMouseButtonDown(MouseButton button) const noexcept
     {
         return m_MouseStates[static_cast<size_t>(button)];
     }
+    [[nodiscard]] bool IsMouseButtonUp(MouseButton button) const noexcept
+    {
+        return !m_MouseStates[static_cast<size_t>(button)];
+    }
+
+    // TODO: ...
+    // [[nodiscard]] bool IsKeyJustPressed(KeyCode key) const noexcept;
+    // [[nodiscard]] bool IsKeyJustReleased(KeyCode key) const noexcept;
+    // [[nodiscard]] bool IsMouseButtonJustPressed(KeyCode key) const noexcept;
+    // [[nodiscard]] bool IsMouseButtonJustReleased(KeyCode key) const noexcept;
 
     [[nodiscard]] int32_t GetMouseX() const noexcept
     {
@@ -97,12 +109,10 @@ class Input final
             m_KeyStates[static_cast<size_t>(key)] = isDown;
         }
     }
-
     void UpdateMouseState(MouseButton button, bool isDown) noexcept
     {
         m_MouseStates[static_cast<size_t>(button)] = isDown;
     }
-
     void UpdateMousePosition(int32_t x, int32_t y) noexcept
     {
         m_MouseX = x;

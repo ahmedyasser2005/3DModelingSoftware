@@ -65,7 +65,9 @@ void DX11Renderer::Resize(uint32_t width, uint32_t height)
     Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
     m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
 
-    m_Device->CreateRenderTargetView(backBuffer.Get(), nullptr, m_RenderTargetView.GetAddressOf());
+    hr = m_Device->CreateRenderTargetView(backBuffer.Get(), nullptr, m_RenderTargetView.GetAddressOf());
+    if (FAILED(hr))
+        throw std::runtime_error("Failed to create render target view.");
 
     D3D11_TEXTURE2D_DESC td = {};
     td.Width = m_Width;
@@ -79,12 +81,17 @@ void DX11Renderer::Resize(uint32_t width, uint32_t height)
     td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
     td.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-    m_Device->CreateTexture2D(&td, nullptr, m_GPUTexture.GetAddressOf());
+    hr = m_Device->CreateTexture2D(&td, nullptr, m_GPUTexture.GetAddressOf());
+    if (FAILED(hr))
+        throw std::runtime_error("Failed to create staging texture.");
 }
 
-void DX11Renderer::Present(const std::vector<uint32_t>& framebuffer, bool vsync)
+void DX11Renderer::Present(std::span<const uint32_t> framebuffer, bool vsync)
 {
     if (!m_SwapChain || !m_GPUTexture || framebuffer.empty())
+        return;
+
+    if (framebuffer.size() != static_cast<size_t>(m_Width) * m_Height)
         return;
 
     D3D11_MAPPED_SUBRESOURCE mapped = {};
@@ -101,17 +108,6 @@ void DX11Renderer::Present(const std::vector<uint32_t>& framebuffer, bool vsync)
         }
         m_DeviceContext->Unmap(m_GPUTexture.Get(), 0);
     }
-
-    m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), nullptr);
-
-    D3D11_VIEWPORT viewport = {};
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
-    viewport.Width = static_cast<float>(m_Width);
-    viewport.Height = static_cast<float>(m_Height);
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    m_DeviceContext->RSSetViewports(1, &viewport);
 
     Microsoft::WRL::ComPtr<ID3D11Resource> srcResource;
     Microsoft::WRL::ComPtr<ID3D11Resource> dstResource;
