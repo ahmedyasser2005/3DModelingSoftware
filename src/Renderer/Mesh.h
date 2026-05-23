@@ -11,8 +11,8 @@ struct Face;
 
 struct Vertex
 {
-    float x, y, z;          // Geometric coordinates
     HalfEdge* incidentEdge; // One of the half-edges leaving this vertex
+    float x, y, z;          // Geometric coordinates
 };
 
 struct Face
