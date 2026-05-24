@@ -17,7 +17,7 @@ The architecture is cleanly separated into a **platform layer** (Win32), a **pre
 
 | Initial Canvas Demo | Wireframe Cube (Front) | Wireframe Cube (Orbiting) | Wireframe Cube (Zoomed Out) |
 |---|---|---|---|
-| ![Canvas](docs/imgs/2026-5-21/1.png) | ![Front](docs/imgs/2026-05-24/1.png) | ![Orbit](docs/imgs/2026-05-24/2.png) | ![Zoom](docs/imgs/2026-05-24/3.png) |
+| ![Canvas](docs/imgs/2026-5-21/1.png) | ![Front](docs/imgs/2026-5-24/1.png) | ![Orbit](docs/imgs/2026-5-24/2.png) | ![Zoom](docs/imgs/2026-5-24/3.png) |
 
 ---
 
