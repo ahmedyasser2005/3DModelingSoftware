@@ -2,6 +2,7 @@
 
 #include "Platform/Win32API.h"
 
+#include "Camera/Camera.h"
 #include "EditorUI/EditorUI.h"
 #include "Platform/Window.h"
 #include "Presenter/DX11Presenter.h"
@@ -21,11 +22,13 @@ class Application final
     void Run();
 
   private:
-    void HandleEvents();
-    void Update(const float& deltaTime);
-    void Render();
+    void        HandleEvents();
+    inline void FirstFrame();
+    void        Update(const float& deltaTime);
+    void        Render();
+    void        RenderUI();
 
-    void OnResize(uint32_t w, uint32_t h);
+    void OnResize(uint32_t width, uint32_t height);
 
   private:
     Window        m_Window;
@@ -33,6 +36,7 @@ class Application final
     SceneGraph    m_SceneGraph;
     DX11Presenter m_DX11Presenter;
     EditorUI      m_EditorUI;
+    Camera        m_Camera;
 
     bool m_IsRunning     = true;
     bool m_ResizePending = false;
