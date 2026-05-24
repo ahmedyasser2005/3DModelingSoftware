@@ -63,7 +63,7 @@ enum class MouseButton : uint8_t
 class InputHandler final
 {
   public:
-    InputHandler() = default;
+    InputHandler()  = default;
     ~InputHandler() = default;
 
     // IsKeyDown(KeyCode::Unknown) is still callable
@@ -101,6 +101,10 @@ class InputHandler final
     {
         return m_MouseY;
     }
+    [[nodiscard]] float GetMouseWheelDelta() const noexcept
+    {
+        return m_MouseWheelDelta;
+    }
 
     void UpdateKeyState(KeyCode key, bool isDown) noexcept
     {
@@ -113,6 +117,14 @@ class InputHandler final
     {
         m_MouseStates[static_cast<size_t>(button)] = isDown;
     }
+    void UpdateMouseWheelDelta(float mouseWheelDelta) noexcept
+    {
+        m_MouseWheelDelta = mouseWheelDelta;
+    }
+    void ClearMouseWheelDelta() noexcept
+    {
+        m_MouseWheelDelta = 0.0f;
+    }
     void UpdateMousePosition(int32_t x, int32_t y) noexcept
     {
         m_MouseX = x;
@@ -120,8 +132,9 @@ class InputHandler final
     }
 
   private:
-    std::bitset<256> m_KeyStates = {};
-    std::bitset<3> m_MouseStates = {};
-    int32_t m_MouseX = 0;
-    int32_t m_MouseY = 0;
+    std::bitset<256> m_KeyStates       = {};
+    std::bitset<3>   m_MouseStates     = {};
+    int32_t          m_MouseX          = 0;
+    int32_t          m_MouseY          = 0;
+    float            m_MouseWheelDelta = 0.0f;
 };

@@ -8,9 +8,9 @@
 
 struct WindowDesc
 {
-    std::wstring Title = L"Untitled";
-    uint32_t Width = 1280;
-    uint32_t Height = 720;
+    std::wstring Title  = L"Untitled";
+    uint32_t     Width  = 1280;
+    uint32_t     Height = 720;
 };
 
 class Window final
@@ -19,10 +19,10 @@ class Window final
     explicit Window(const WindowDesc& desc);
     ~Window();
 
-    Window(const Window&) = delete;
+    Window(const Window&)            = delete;
     Window& operator=(const Window&) = delete;
-    Window(Window&&) = delete;
-    Window& operator=(Window&&) = delete;
+    Window(Window&&)                 = delete;
+    Window& operator=(Window&&)      = delete;
 
     [[nodiscard]] bool ProcessMessages() noexcept;
 
@@ -31,7 +31,7 @@ class Window final
         m_ResizeCallback = std::move(cb);
     }
 
-    [[nodiscard]] const InputHandler& GetInputHandler() const noexcept
+    [[nodiscard]] InputHandler& GetInputHandler() noexcept
     {
         return m_InputHandler;
     }
@@ -55,10 +55,10 @@ class Window final
     static LRESULT CALLBACK WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
   private:
-    HWND m_WindowHandle = nullptr;
+    HWND         m_WindowHandle = nullptr;
     InputHandler m_InputHandler = {};
-    uint32_t m_Width = 0;
-    uint32_t m_Height = 0;
+    uint32_t     m_Width        = 0;
+    uint32_t     m_Height       = 0;
 
     std::function<void(uint32_t, uint32_t)> m_ResizeCallback;
 };
