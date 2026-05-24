@@ -5,33 +5,33 @@
 // Doubly-Connected Edge List (DCEL), AKA Half-edge,
 // It uses "half-edges" that point in opposite directions to allow easy traversal of a mesh's topology.
 
-struct Vertex;
 struct HalfEdge;
 struct Face;
 
 struct Vertex
 {
-    HalfEdge* incidentEdge; // One of the half-edges leaving this vertex
-    float x, y, z;          // Geometric coordinates
+    HalfEdge* incidentEdge = nullptr;
+    float     x = 0.0f, y = 0.0f, z = 0.0f;
 };
 
 struct Face
 {
-    HalfEdge* outerComponent; // One of the half-edges forming the boundary of this face
+    HalfEdge* outerComponent = nullptr;
 };
 
 struct HalfEdge
 {
-    Vertex* origin;     // Vertex where this half-edge starts
-    HalfEdge* twin;     // The half-edge running in the opposite direction
-    Face* incidentFace; // The face to the left of this half-edge
-    HalfEdge* next;     // The next half-edge around the incident face (counter-clockwise)
-    HalfEdge* prev;     // The previous half-edge around the incident face
+    Vertex*   start        = nullptr;
+    Vertex*   end          = nullptr;
+    HalfEdge* twin         = nullptr;
+    Face*     incidentFace = nullptr;
+    HalfEdge* next         = nullptr;
+    HalfEdge* prev         = nullptr;
 };
 
 struct Mesh
 {
-    std::vector<std::unique_ptr<Vertex>> vertices;
-    std::vector<std::unique_ptr<HalfEdge>> halfEdges;
-    std::vector<std::unique_ptr<Face>> faces;
+    std::vector<std::unique_ptr<Vertex>>   vertices  = {};
+    std::vector<std::unique_ptr<HalfEdge>> halfEdges = {};
+    std::vector<std::unique_ptr<Face>>     faces     = {};
 };
