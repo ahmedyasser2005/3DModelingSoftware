@@ -1,6 +1,9 @@
 #pragma once
 
-// Keep track of what we want to draw 
+class Renderer;
+struct Node;
+struct CurveData;
+
 
 class EditorUI final
 {
@@ -18,9 +21,8 @@ class EditorUI final
 
     void BeginMasterDockspace();
     void EndMasterDockspace();
+    void ShowCurveEditor(CurveData& curve);
 
-    // Updated declaration to accept your software renderer
-    void ShowEditorPanels(class Renderer& renderer);
-
+    void ShowEditorPanels(Renderer& renderer, Node* targetNode);
   
 };

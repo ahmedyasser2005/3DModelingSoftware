@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
-    add_compile_options(/W4 /WX /permissive-)
+    add_compile_options(/W4 /WX /permissive- /utf-8)
 endif()
 
 add_library(imgui STATIC
@@ -16,9 +16,15 @@ add_library(imgui STATIC
     "ext/imgui/imgui_widgets.cpp"
     "ext/imgui/backends/imgui_impl_dx11.cpp"
     "ext/imgui/backends/imgui_impl_win32.cpp"
-)
+ "src/Scene/Node.h" "src/Draw/CubicBezier.h" "src/Draw/CubicBezier.cpp" "src/Draw/RationalBezier.h" "src/Draw/RationalBezier.cpp" "src/Draw/BSpline.cpp" "src/Draw/Helper.h")
 target_include_directories(imgui PUBLIC "ext/imgui" "ext/imgui/backends")
 
+add_library(draw STATIC
+    "src/Draw/Line.cpp"
+    "src/Draw/Circle.cpp"
+    "src/Draw/Ellipse.cpp"
+ "src/Scene/Node.h" "src/Draw/CubicBezier.h" "src/Draw/CubicBezier.cpp" "src/Draw/RationalBezier.h" "src/Draw/RationalBezier.cpp" "src/Draw/BSpline.cpp" "src/Draw/Helper.h")
+target_include_directories(draw PUBLIC "src/")
 
 add_executable(${PROJECT_NAME} WIN32
     "src/Main.cpp"
@@ -30,23 +36,32 @@ add_executable(${PROJECT_NAME} WIN32
 
     "src/Presenter/DX11Presenter.h"
     "src/Presenter/DX11Presenter.cpp"
+
+    "src/Renderer/Mesh.h"
     "src/Renderer/Renderer.h"
     "src/Renderer/Renderer.cpp"
-
-    "src/Draw/Draw.h"
-    "src/Draw/Draw.cpp"
+    "src/Renderer/WireframeRasterizer.h"
+    "src/Renderer/WireframeRasterizer.cpp"
 
     "src/Application/Application.h"
     "src/Application/Application.cpp"
 
     "src/EditorUI/EditorUI.h"
     "src/EditorUI/EditorUI.cpp"
+
+    "src/Scene/SceneGraph.h"
+    "src/Scene/SceneGraph.cpp"
+
+    "src/Camera/Camera.h"
+    "src/Camera/Camera.cpp"
+ "src/Scene/Node.h" "src/Draw/CubicBezier.h" "src/Draw/CubicBezier.cpp" "src/Draw/RationalBezier.h" "src/Draw/RationalBezier.cpp" "src/Draw/BSpline.cpp" "src/Draw/Helper.h")
+
+target_include_directories(${PROJECT_NAME}
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src"
-)
+target_include_directories(imgui PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler PRIVATE imgui)
+    target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler PRIVATE imgui draw)
 endif()

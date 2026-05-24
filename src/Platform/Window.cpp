@@ -46,7 +46,7 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
     if (uMsg == WM_NCCREATE)
     {
         CREATESTRUCTW* pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
-        pWindow = reinterpret_cast<Window*>(pCreate->lpCreateParams);
+        pWindow                = reinterpret_cast<Window*>(pCreate->lpCreateParams);
         SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));
         pWindow->m_WindowHandle = hwnd;
     }
@@ -88,7 +88,7 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 
             if (newW > 0 && newH > 0 && (newW != pWindow->m_Width || newH != pWindow->m_Height))
             {
-                pWindow->m_Width = newW;
+                pWindow->m_Width  = newW;
                 pWindow->m_Height = newH;
                 if (pWindow->m_ResizeCallback)
                     pWindow->m_ResizeCallback(newW, newH);
@@ -101,7 +101,7 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
             uint32_t newH = static_cast<uint32_t>(HIWORD(lParam));
             if (newW > 0 && newH > 0 && (newW != pWindow->m_Width || newH != pWindow->m_Height))
             {
-                pWindow->m_Width = newW;
+                pWindow->m_Width  = newW;
                 pWindow->m_Height = newH;
                 if (pWindow->m_ResizeCallback)
                     pWindow->m_ResizeCallback(newW, newH);
@@ -159,6 +159,10 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
             pWindow->m_InputHandler.UpdateMouseState(MouseButton::Middle, false);
             return 0;
         }
+        case WM_MOUSEWHEEL:
+            // GET_WHEEL_DELTA_WPARAM returns multiples of 120
+            pWindow->m_InputHandler.UpdateMouseWheelDelta(static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / 120.0f);
+            break;
         }
     }
 
@@ -167,15 +171,15 @@ LRESULT CALLBACK Window::WindowProcThunk(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 
 Window::Window(const WindowDesc& desc) : m_Width(desc.Width), m_Height(desc.Height)
 {
-    HINSTANCE hInstance = GetModuleHandleW(nullptr);
+    HINSTANCE      hInstance = GetModuleHandleW(nullptr);
     const wchar_t* className = L"3DModelingSoftwareWindowClass";
 
-    WNDCLASSEXW wc = {};
-    wc.cbSize = sizeof(WNDCLASSEXW);
-    wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = WindowProcThunk;
-    wc.hInstance = hInstance;
-    wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+    WNDCLASSEXW wc   = {};
+    wc.cbSize        = sizeof(WNDCLASSEXW);
+    wc.style         = CS_HREDRAW | CS_VREDRAW;
+    wc.lpfnWndProc   = WindowProcThunk;
+    wc.hInstance     = hInstance;
+    wc.hCursor       = LoadCursorW(nullptr, IDC_ARROW);
     wc.lpszClassName = className;
 
     RegisterClassExW(&wc);

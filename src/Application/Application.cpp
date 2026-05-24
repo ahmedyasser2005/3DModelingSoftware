@@ -1,19 +1,30 @@
 #include "Application.h"
+#include "Draw/BSpline.h"
+#include "Draw/CubicBezier.h"
+#include "Draw/RationalBezier.h"
+#include "Renderer/TestMesh.h"
+#include <DirectXMath.h>
 #include <chrono>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
 
-#define k_EditorBg 30, 33, 40 // Sleek editor dark mode background
+struct ColorRGB
+{
+    uint8_t r, g, b;
+};
+inline constexpr ColorRGB k_EditorBg{ 30, 33, 40 };
+
 using Clock = std::chrono::high_resolution_clock;
 
 Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 720 })
 {
-    m_Renderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
     m_DX11Presenter.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
+    m_Renderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
+    m_SceneGraph.Initialize(m_Renderer);
     m_EditorUI.Initialize(m_Window.GetNativeHandle(), m_DX11Presenter.GetDevice(), m_DX11Presenter.GetContext());
 
-    m_Renderer.Clear(k_EditorBg);
+    m_Renderer.Clear(k_EditorBg.r, k_EditorBg.g, k_EditorBg.b);
 
     m_Window.SetResizeCallback(
         [this](uint32_t w, uint32_t h)
@@ -27,11 +38,11 @@ void Application::Run()
 {
     auto lastFrameTime = Clock::now();
 
+    FirstFrame();
+
     while (m_IsRunning)
     {
         HandleEvents();
-        if (!m_IsRunning)
-            break;
 
         auto now = Clock::now();
         float dt = std::chrono::duration<float>(now - lastFrameTime).count();
@@ -39,9 +50,10 @@ void Application::Run()
 
         Update(dt);
 
-        m_EditorUI.StartFrame();
+        m_Renderer.Clear(k_EditorBg.r, k_EditorBg.g, k_EditorBg.b);
         Render();
-        m_EditorUI.EndFrame();
+        m_Window.GetInputHandler().ClearMouseWheelDelta();
+        RenderUI();
 
         m_DX11Presenter.Present(m_Renderer.GetFramebuffer(), !m_ResizePending);
         m_ResizePending = false;
@@ -64,59 +76,78 @@ void Application::HandleEvents()
     }
 }
 
-void Application::Update(const float& dt)
+void Application::FirstFrame()
 {
-    (void)dt;
-    const InputHandler& InputHandler = m_Window.GetInputHandler();
+    auto cubeNode = std::make_unique<Node>();
+    cubeNode->Name = "TestCube";
+    cubeNode->Mesh = CreatePrimitiveCube(1.0f);
+    cubeNode->Position = { 0.0f, 0.0f, 0.0f };
+    m_SceneGraph.GetRoot()->Children.emplace_back(std::move(cubeNode));
+}
+
+void Application::Update(const float& deltaTime)
+{
+    InputHandler& input = m_Window.GetInputHandler();
     ImGuiIO& io = ImGui::GetIO();
 
-    // If ImGui is focused on a text box or widget,
-    // ignore keyboard inputs for app logic
-    if (io.WantCaptureKeyboard)
-        return;
-    // If ImGui is hovering over or dragging a window,
-    // ignore mouse inputs for canvas painting
-    if (io.WantCaptureMouse)
-        return;
+    DirectX::XMFLOAT4X4 identityMatrix;
+    DirectX::XMStoreFloat4x4(&identityMatrix, DirectX::XMMatrixIdentity());
 
-    if (InputHandler.IsKeyDown(KeyCode::Escape))
+    if (input.IsKeyDown(KeyCode::Escape)) [[unlikely]]
     {
         m_IsRunning = false;
         return;
     }
 
-    if (InputHandler.IsKeyDown(KeyCode::Space))
+    if (io.WantCaptureMouse || io.WantCaptureKeyboard)
     {
-        m_Renderer.Clear(k_EditorBg);
+        return;
     }
 
-    if (InputHandler.IsMouseButtonDown(MouseButton::Left))
-    {
-        int32_t mx = InputHandler.GetMouseX();
-        int32_t my = InputHandler.GetMouseY();
-
-        m_Renderer.PutPixel(mx, my, 255, 200, 0);
-        m_Renderer.PutPixel(mx + 1, my, 255, 200, 0);
-        m_Renderer.PutPixel(mx, my + 1, 255, 200, 0);
-        m_Renderer.PutPixel(mx + 1, my + 1, 255, 200, 0);
-    }
+    m_Camera.Update(input, (float)m_Renderer.GetWidth(), (float)m_Renderer.GetHeight(), deltaTime);
+    m_SceneGraph.Update(m_SceneGraph.GetRoot(), identityMatrix);
+    m_SceneGraph.SetViewProjMatrix(m_Camera.GetViewProjMatrix());
 }
-
 
 void Application::Render()
 {
-    m_EditorUI.BeginMasterDockspace();
+    DirectX::XMFLOAT4X4 vp = m_Camera.GetViewProjMatrix();
 
-    // Pass your software renderer instance into the panels method
-    m_EditorUI.ShowEditorPanels(m_Renderer);
+    uint8_t r = static_cast<uint8_t>(m_CurveState.Color[0] * 255.0f);
+    uint8_t g = static_cast<uint8_t>(m_CurveState.Color[1] * 255.0f);
+    uint8_t b = static_cast<uint8_t>(m_CurveState.Color[2] * 255.0f);
+    uint32_t hexColor = (r << 16) | (g << 8) | b;
 
-    m_EditorUI.EndMasterDockspace();
+    Draw::CurveCubicBezier(
+        m_Renderer, vp, m_CurveState.P0, m_CurveState.P1, m_CurveState.P2, m_CurveState.P3, hexColor);
 }
 
-
-void Application::OnResize(uint32_t w, uint32_t h)
+void Application::RenderUI()
 {
-    m_Renderer.ResizeCanvas(w, h, k_EditorBg);
-    m_DX11Presenter.Resize(w, h);
+    m_EditorUI.StartFrame();
+    m_EditorUI.BeginMasterDockspace();
+
+    Node* cubeNode = nullptr;
+    for (auto& child : m_SceneGraph.GetRoot()->Children)
+    {
+        if (child && child->Name == "TestCube")
+        {
+            cubeNode = child.get();
+            break;
+        }
+    }
+
+    m_EditorUI.ShowEditorPanels(m_Renderer, cubeNode);
+    // FIXED: Call the curve editor function to display the curve UI!
+    m_EditorUI.ShowCurveEditor(m_CurveState);
+
+    m_EditorUI.EndMasterDockspace();
+    m_EditorUI.EndFrame();
+}
+
+void Application::OnResize(uint32_t width, uint32_t height)
+{
+    m_Renderer.ResizeCanvas(width, height, k_EditorBg.r, k_EditorBg.g, k_EditorBg.b);
+    m_DX11Presenter.Resize(width, height);
     m_DX11Presenter.Present(m_Renderer.GetFramebuffer(), !m_ResizePending);
 }

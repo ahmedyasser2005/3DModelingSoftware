@@ -1,7 +1,8 @@
-#pragma once
+    #pragma once
 
 #include <cstdint>
 #include <vector>
+#include "Draw/line.h"
 
 // Two-buffer design:
 //   m_Canvas       — the full scene backing store. Only grows. Coordinates are
@@ -16,13 +17,15 @@
 class Renderer final
 {
   public:
-    Renderer() = default;
-    ~Renderer() = default;
-    Renderer(const Renderer&) = delete;
+    Renderer()                           = default;
+    ~Renderer()                          = default;
+    Renderer(const Renderer&)            = delete;
     Renderer& operator=(const Renderer&) = delete;
-    Renderer(Renderer&&) = delete;
-    Renderer& operator=(Renderer&&) = delete;
+    Renderer(Renderer&&)                 = delete;
+    Renderer& operator=(Renderer&&)      = delete;
 
+
+    void LineBresenham(int x0, int y0, int x1, int y1, uint32_t color);
     void Initialize(uint32_t width, uint32_t height);
     void Resize(uint32_t width, uint32_t height);
     void ResizeCanvas(uint32_t width, uint32_t height, uint8_t bgR, uint8_t bgG, uint8_t bgB);
@@ -48,10 +51,10 @@ class Renderer final
     void RebuildFramebuffer();
 
     std::vector<uint32_t> m_Canvas;
-    uint32_t m_CanvasW = 0;
-    uint32_t m_CanvasH = 0;
+    uint32_t              m_CanvasW = 0;
+    uint32_t              m_CanvasH = 0;
 
     std::vector<uint32_t> m_Framebuffer;
-    uint32_t m_Width = 0;
-    uint32_t m_Height = 0;
+    uint32_t              m_Width  = 0;
+    uint32_t              m_Height = 0;
 };

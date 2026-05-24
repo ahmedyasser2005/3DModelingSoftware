@@ -13,7 +13,8 @@ void Renderer::RebuildFramebuffer()
     for (uint32_t y = 0; y < m_Height; ++y)
     {
         const uint32_t* src = m_Canvas.data() + y * m_CanvasW;
-        uint32_t* dst = m_Framebuffer.data() + y * m_Width;
+        uint32_t*       dst = m_Framebuffer.data() + y * m_Width;
+
         std::memcpy(dst, src, static_cast<size_t>(m_Width) * sizeof(uint32_t));
     }
 }
@@ -25,8 +26,10 @@ void Renderer::Initialize(uint32_t width, uint32_t height)
 
 void Renderer::Resize(uint32_t width, uint32_t height)
 {
-    m_Width = m_CanvasW = width;
-    m_Height = m_CanvasH = height;
+    m_Width   = width;
+    m_Height  = height;
+    m_CanvasW = width;
+    m_CanvasH = height;
 
     m_Canvas.assign(static_cast<size_t>(m_CanvasW) * m_CanvasH, PackRGBA(0, 0, 0, 255));
     m_Framebuffer.assign(static_cast<size_t>(m_Width) * m_Height, PackRGBA(0, 0, 0, 255));
@@ -34,7 +37,7 @@ void Renderer::Resize(uint32_t width, uint32_t height)
 
 void Renderer::ResizeCanvas(uint32_t newW, uint32_t newH, uint8_t bgR, uint8_t bgG, uint8_t bgB)
 {
-    m_Width = newW;
+    m_Width  = newW;
     m_Height = newH;
 
     bool canvasGrew = (newW > m_CanvasW) || (newH > m_CanvasH);
@@ -49,11 +52,11 @@ void Renderer::ResizeCanvas(uint32_t newW, uint32_t newH, uint8_t bgR, uint8_t b
         for (uint32_t y = 0; y < m_CanvasH; ++y)
         {
             const uint32_t* src = m_Canvas.data() + y * m_CanvasW;
-            uint32_t* dst = newCanvas.data() + y * expandW;
+            uint32_t*       dst = newCanvas.data() + y * expandW;
             std::memcpy(dst, src, static_cast<size_t>(m_CanvasW) * sizeof(uint32_t));
         }
 
-        m_Canvas = std::move(newCanvas);
+        m_Canvas  = std::move(newCanvas);
         m_CanvasW = expandW;
         m_CanvasH = expandH;
     }
@@ -76,6 +79,6 @@ void Renderer::PutPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b, u
 
     const uint32_t color = PackRGBA(r, g, b, a);
 
-    m_Canvas[static_cast<size_t>(y) * m_CanvasW + static_cast<size_t>(x)] = color;
+    m_Canvas[static_cast<size_t>(y) * m_CanvasW + static_cast<size_t>(x)]    = color;
     m_Framebuffer[static_cast<size_t>(y) * m_Width + static_cast<size_t>(x)] = color;
 }
