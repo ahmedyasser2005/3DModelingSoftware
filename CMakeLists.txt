@@ -51,6 +51,9 @@ add_executable(${PROJECT_NAME} WIN32
 
     "src/Scene/SceneGraph.h"
     "src/Scene/SceneGraph.cpp"
+
+    "src/Camera/Camera.h"
+    "src/Camera/Camera.cpp"
 )
 
 target_include_directories(${PROJECT_NAME}
