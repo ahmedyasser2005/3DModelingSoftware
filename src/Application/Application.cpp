@@ -1,4 +1,5 @@
 #include "Application.h"
+#include <DirectXMath.h>
 #include <chrono>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
@@ -9,8 +10,9 @@ using Clock = std::chrono::high_resolution_clock;
 
 Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 720 })
 {
-    m_Renderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
     m_DX11Presenter.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
+    m_Renderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
+    m_SceneGraph.Initialize(m_Renderer);
     m_EditorUI.Initialize(m_Window.GetNativeHandle(), m_DX11Presenter.GetDevice(), m_DX11Presenter.GetContext());
 
     m_Renderer.Clear(k_EditorBg);
@@ -33,12 +35,11 @@ void Application::Run()
         if (!m_IsRunning)
             break;
 
-        auto now = Clock::now();
-        float dt = std::chrono::duration<float>(now - lastFrameTime).count();
+        auto  now     = Clock::now();
+        float dt      = std::chrono::duration<float>(now - lastFrameTime).count();
         lastFrameTime = now;
 
         Update(dt);
-
         m_EditorUI.StartFrame();
         Render();
         m_EditorUI.EndFrame();
@@ -64,19 +65,13 @@ void Application::HandleEvents()
     }
 }
 
-void Application::Update(const float& dt)
+void Application::Update(const float& deltaTime)
 {
-    (void)dt;
+    (void)deltaTime;
     const InputHandler& InputHandler = m_Window.GetInputHandler();
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO&            io           = ImGui::GetIO();
 
-    // If ImGui is focused on a text box or widget,
-    // ignore keyboard inputs for app logic
-    if (io.WantCaptureKeyboard)
-        return;
-    // If ImGui is hovering over or dragging a window,
-    // ignore mouse inputs for canvas painting
-    if (io.WantCaptureMouse)
+    if (io.WantCaptureKeyboard || io.WantCaptureMouse)
         return;
 
     if (InputHandler.IsKeyDown(KeyCode::Escape))
@@ -84,26 +79,14 @@ void Application::Update(const float& dt)
         m_IsRunning = false;
         return;
     }
-
-    if (InputHandler.IsKeyDown(KeyCode::Space))
-    {
-        m_Renderer.Clear(k_EditorBg);
-    }
-
-    if (InputHandler.IsMouseButtonDown(MouseButton::Left))
-    {
-        int32_t mx = InputHandler.GetMouseX();
-        int32_t my = InputHandler.GetMouseY();
-
-        m_Renderer.PutPixel(mx, my, 255, 200, 0);
-        m_Renderer.PutPixel(mx + 1, my, 255, 200, 0);
-        m_Renderer.PutPixel(mx, my + 1, 255, 200, 0);
-        m_Renderer.PutPixel(mx + 1, my + 1, 255, 200, 0);
-    }
 }
 
 void Application::Render()
 {
+    m_Renderer.Clear(k_EditorBg);
+
+    m_SceneGraph.Render();
+
     // Add EditorUI drawing functons here like this:
     // Example -> m_EditorUI.CreateMainMenu();
 }

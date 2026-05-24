@@ -40,12 +40,17 @@ add_executable(${PROJECT_NAME} WIN32
     "src/Renderer/Mesh.h"
     "src/Renderer/Renderer.h"
     "src/Renderer/Renderer.cpp"
+    "src/Renderer/WireframeRasterizer.h"
+    "src/Renderer/WireframeRasterizer.cpp"
 
     "src/Application/Application.h"
     "src/Application/Application.cpp"
 
     "src/EditorUI/EditorUI.h"
     "src/EditorUI/EditorUI.cpp"
+
+    "src/Scene/SceneGraph.h"
+    "src/Scene/SceneGraph.cpp"
 )
 
 target_include_directories(${PROJECT_NAME}
