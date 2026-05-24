@@ -48,3 +48,4 @@ SpacesInSquareBrackets: false
 NamespaceIndentation: None
 KeepEmptyLinesAtTheStartOfBlocks: true
 SortIncludes: true
+...
