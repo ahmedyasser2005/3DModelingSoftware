@@ -1,8 +1,5 @@
-# 3D Modeling Software Engine
-
+# 3D Modeling Software
 **CSE382 Computer Graphics — Spring 2025/2026**
-**Project 2: Advanced Surface and Automotive/Industrial Modeling System**
-
 ---
 
 ## Overview
