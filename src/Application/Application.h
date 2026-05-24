@@ -1,30 +1,43 @@
 #pragma once
 
-#include "Platform/Win32Window.h"
-#include "Renderer/DX11Renderer.h"
-#include "Renderer/SoftwareRenderer.h"
+#include "Platform/Win32API.h"
+
+#include "Camera/Camera.h"
+#include "EditorUI/EditorUI.h"
+#include "Platform/Window.h"
+#include "Presenter/DX11Presenter.h"
+#include "Renderer/Renderer.h"
+#include "Scene/SceneGraph.h"
 
 class Application final
 {
   public:
     Application();
-    ~Application() = default;
-    Application(const Application&) = delete;
+    ~Application()                             = default;
+    Application(const Application&)            = delete;
     Application& operator=(const Application&) = delete;
-    Application(Application&&) = delete;
-    Application& operator=(Application&&) = delete;
+    Application(Application&&)                 = delete;
+    Application& operator=(Application&&)      = delete;
 
     void Run();
 
   private:
-    void HandleEvents();
-    void Update(float deltaTime);
-    void Render();
+    void        HandleEvents();
+    inline void FirstFrame();
+    void        Update(const float& deltaTime);
+    void        Render();
+    void        RenderUI();
+
+    void OnResize(uint32_t width, uint32_t height);
 
   private:
-    Win32Window m_Window;
-    SoftwareRenderer m_SoftwareRenderer;
-    DX11Renderer m_DX11Renderer;
+    Window        m_Window;
+    Renderer      m_Renderer;
+    SceneGraph    m_SceneGraph;
+    DX11Presenter m_DX11Presenter;
+    EditorUI      m_EditorUI;
+    Camera        m_Camera;
 
-    bool m_IsRunning = true;
+    bool m_IsRunning     = true;
+    bool m_ResizePending = false;
 };

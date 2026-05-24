@@ -1,32 +1,63 @@
 #include "Application.h"
-#include "Draw/Draw.h"
+#include "Renderer/TestMesh.h" // Testing
+#include <DirectXMath.h>
+#include <chrono>
+#include <imgui.h>
+#include <imgui_impl_dx11.h>
+#include <imgui_impl_win32.h>
+
+struct ColorRGB
+{
+    uint8_t r, g, b;
+};
+inline constexpr ColorRGB k_EditorBg{ 30, 33, 40 }; // Sleek editor dark mode background
+
+using Clock = std::chrono::high_resolution_clock;
+
 Application::Application() : m_Window({ L"3D Modeling Software Engine", 1280, 720 })
 {
-    m_SoftwareRenderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
-    m_DX11Renderer.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
+    m_DX11Presenter.Initialize(m_Window.GetNativeHandle(), m_Window.GetWidth(), m_Window.GetHeight());
+    m_Renderer.Initialize(m_Window.GetWidth(), m_Window.GetHeight());
+    m_SceneGraph.Initialize(m_Renderer);
+    m_EditorUI.Initialize(m_Window.GetNativeHandle(), m_DX11Presenter.GetDevice(), m_DX11Presenter.GetContext());
 
-    m_SoftwareRenderer.Clear(30, 33, 40); // Sleek editor dark mode background
+    m_Renderer.Clear(k_EditorBg.r, k_EditorBg.g, k_EditorBg.b);
 
     m_Window.SetResizeCallback(
         [this](uint32_t w, uint32_t h)
         {
-            m_SoftwareRenderer.ResizeCanvas(w, h, 30, 33, 40);
-            m_DX11Renderer.Resize(w, h);
-
-            m_DX11Renderer.Present(m_SoftwareRenderer.GetFramebuffer(), false);
+            OnResize(w, h);
+            m_ResizePending = true;
         });
 }
 
 void Application::Run()
 {
+    auto lastFrameTime = Clock::now();
+
+    FirstFrame();
+
     while (m_IsRunning)
     {
         HandleEvents();
-        if (!m_IsRunning)
-            break;
 
-        Update(0.016f);
+        auto  now     = Clock::now();
+        float dt      = std::chrono::duration<float>(now - lastFrameTime).count();
+        lastFrameTime = now;
+
+        Update(dt);
+
+        m_Renderer.Clear(k_EditorBg.r, k_EditorBg.g, k_EditorBg.b);
+
         Render();
+        m_Window.GetInputHandler().ClearMouseWheelDelta();
+
+        m_EditorUI.StartFrame();
+        RenderUI();
+        m_EditorUI.EndFrame();
+
+        m_DX11Presenter.Present(m_Renderer.GetFramebuffer(), !m_ResizePending);
+        m_ResizePending = false;
     }
 }
 
@@ -40,80 +71,67 @@ void Application::HandleEvents()
 
     uint32_t ww = m_Window.GetWidth();
     uint32_t wh = m_Window.GetHeight();
-    if (ww > 0 && wh > 0 && (ww != m_SoftwareRenderer.GetWidth() || wh != m_SoftwareRenderer.GetHeight()))
+    if (ww > 0 && wh > 0 && (ww != m_Renderer.GetWidth() || wh != m_Renderer.GetHeight()))
     {
-        m_SoftwareRenderer.ResizeCanvas(ww, wh, 30, 33, 40);
-        m_DX11Renderer.Resize(ww, wh);
+        OnResize(ww, wh);
     }
 }
 
-void Application::Update(float deltaTime)
+void Application::FirstFrame()
 {
-    (void)deltaTime;
+    // NOTE: This is AI generated code.
+    // Only used for testing purposes.
+    // There will be different implementation of this.
+    auto cubeNode      = std::make_unique<Node>();
+    cubeNode->Name     = "TestCube";
+    cubeNode->Mesh     = CreatePrimitiveCube(1.0f);
+    cubeNode->Position = { 0.0f, 0.0f, 0.0f };
+    m_SceneGraph.GetRoot()->Children.emplace_back(std::move(cubeNode));
+}
 
-    const Input& input = m_Window.GetInput();
+void Application::Update(const float& deltaTime)
+{
+    InputHandler& input = m_Window.GetInputHandler();
+    ImGuiIO&      io    = ImGui::GetIO();
 
-    if (input.IsKeyPressed(KeyCode::Escape))
+    DirectX::XMFLOAT4X4 identityMatrix;
+    DirectX::XMStoreFloat4x4(&identityMatrix, DirectX::XMMatrixIdentity());
+
+    // Handle Input
+    if (input.IsKeyDown(KeyCode::Escape)) [[unlikely]]
     {
         m_IsRunning = false;
         return;
     }
 
-    if (input.IsKeyPressed(KeyCode::Space))
+    // Handle ImGui
+    if (io.WantCaptureMouse || io.WantCaptureKeyboard)
     {
-        m_SoftwareRenderer.Clear(30, 33, 40);
+        return;
     }
 
-    if (input.IsMouseButtonPressed(MouseButton::Left))
-    {
-        int32_t mx = input.GetMouseX();
-        int32_t my = input.GetMouseY();
+    // Update Camera
+    m_Camera.Update(input, (float)m_Renderer.GetWidth(), (float)m_Renderer.GetHeight(), deltaTime);
 
-        // Draw gold pixels using a steady 2x2 brush layout
-        m_SoftwareRenderer.PutPixel(mx, my, 255, 200, 0);
-        m_SoftwareRenderer.PutPixel(mx + 1, my, 255, 200, 0);
-        m_SoftwareRenderer.PutPixel(mx, my + 1, 255, 200, 0);
-        m_SoftwareRenderer.PutPixel(mx + 1, my + 1, 255, 200, 0);
-    }
-    if (input.IsKeyPressed(KeyCode::K))
-    {
-        Draw::LineBresenham(&m_SoftwareRenderer, 100, 100, 400, 300, 0xFF00FF00);
-    }
-    if (input.IsKeyPressed(KeyCode::D)) 
-            {
-        Draw::LineDDA(&m_SoftwareRenderer, 200, 200, 500, 500, 0xFF0000FF);
-            }
-    if (input.IsKeyPressed(KeyCode::S))
-         {
-         Draw::CircleCartesian(&m_SoftwareRenderer, 400, 300, 100, 0xFFFF0000);
-         }
-    if (input.IsKeyPressed(KeyCode::C))
-    {
-        Draw::CirclePolar(&m_SoftwareRenderer, 600, 300, 80, 0xFFFFFF00);
-    }
-    if (input.IsKeyPressed(KeyCode::B))
-     {
-         Draw::CircleBresenham(&m_SoftwareRenderer, 800, 300, 60, 0xFFFF00FF);
-     }
-    if (input.IsKeyPressed(KeyCode::M))
-    {
-        Draw::CircleMidpoint(&m_SoftwareRenderer, 1000, 300, 120, 0xFF00FFFF);
-    }
-    if (input.IsKeyPressed(KeyCode::I))
-    {
-        Draw::EllipseCartesian(&m_SoftwareRenderer, 300, 500, 120, 70, 0xFF00FF00);
-    }
-    if (input.IsKeyPressed(KeyCode::O))
-    {
-        Draw::EllipsePolar(&m_SoftwareRenderer, 640, 500, 120, 70, 0xFFFFFF00);
-    }
-    if (input.IsKeyPressed(KeyCode::P))
-    {
-        Draw::EllipseMidpoint(&m_SoftwareRenderer, 980, 500, 120, 70, 0xFF00FFFF);
-    }
+    // Update Scene Objects
+    m_SceneGraph.Update(m_SceneGraph.GetRoot(), identityMatrix);
+    m_SceneGraph.SetViewProjMatrix(m_Camera.GetViewProjMatrix());
 }
 
 void Application::Render()
 {
-    m_DX11Renderer.Present(m_SoftwareRenderer.GetFramebuffer(), true);
+    m_SceneGraph.Render();
+}
+
+void Application::RenderUI()
+{
+    // Add EditorUI drawing functons here like this:
+    // Example -> m_EditorUI.CreateMainMenu();
+}
+
+void Application::OnResize(uint32_t width, uint32_t height)
+{
+    m_Renderer.ResizeCanvas(width, height, k_EditorBg.r, k_EditorBg.g, k_EditorBg.b);
+    m_DX11Presenter.Resize(width, height);
+    m_DX11Presenter.Present(m_Renderer.GetFramebuffer(), !m_ResizePending);
 }

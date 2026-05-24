@@ -30,7 +30,3 @@
 
 // Include Core Windows Headers
 #include <Windows.h>
-
-#ifdef APP_ENTRY_POINT
-#define main() wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
-#endif

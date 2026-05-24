@@ -1,13 +1,13 @@
 ---
 Language: Cpp
 BasedOnStyle: Microsoft
-
 ColumnLimit: 120
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 Standard: Latest
 
+# Bracing and Blocks (Classic Allman layout)
 BreakBeforeBraces: Allman
 AllowShortBlocksOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: false
@@ -15,31 +15,37 @@ AllowShortLoopsOnASingleLine: false
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: false
 
-Cpp11BracedListStyle: false
+# Structural Alignment (Highly optimized for Math & Matrix/Vector Layouts)
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
-ConstructorInitializerIndentWidth: 4
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
 
-AlwaysBreakAfterReturnType: None
+# Constructor Lists (Modern handling for vector initializers)
+ConstructorInitializerIndentWidth: 4
+PackConstructorInitializers: NextLine
+
+# Modern Function Layout (Updated for 2026 compliance)
+BreakAfterReturnType: Automatic
+PenaltyReturnTypeOnItsOwnLine: 1000   # Strongly penalizes forcing return types to their own line
 AlwaysBreakTemplateDeclarations: true
 BinPackArguments: false
 BinPackParameters: false
 
+# Pointers and Casts
 PointerAlignment: Left
 DerivePointerAlignment: false
-
 SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
+
+# Spacing Cleanliness
+Cpp11BracedListStyle: false
 SpaceInEmptyParentheses: false
 SpacesInCStyleCastParentheses: false
 SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-
 NamespaceIndentation: None
 KeepEmptyLinesAtTheStartOfBlocks: true
-
 SortIncludes: true
 ...

@@ -5,60 +5,61 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
-    add_compile_options(/W4 /permissive-)
+    add_compile_options(/W4 /WX /permissive-)
 endif()
 
-add_library(Draw STATIC
-    "src/Draw/Draw.h"
-    "src/Draw/Draw.cpp"
+add_library(imgui STATIC
+    "ext/imgui/imgui.cpp"
+    "ext/imgui/imgui_demo.cpp"
+    "ext/imgui/imgui_draw.cpp"
+    "ext/imgui/imgui_tables.cpp"
+    "ext/imgui/imgui_widgets.cpp"
+    "ext/imgui/backends/imgui_impl_dx11.cpp"
+    "ext/imgui/backends/imgui_impl_win32.cpp"
 )
-target_include_directories(Draw PUBLIC "src/")
+target_include_directories(imgui PUBLIC "ext/imgui" "ext/imgui/backends")
 
-add_library(Platform STATIC 
-    "src/Platform/Win32API.h"
-    "src/Platform/Win32Window.h"
-    "src/Platform/Win32Window.cpp"
-    "src/Platform/Input.h"
+add_library(draw STATIC
+    "src/Draw/Line.cpp"
+    "src/Draw/Circle.cpp"
+    "src/Draw/Ellipse.cpp"
 )
-target_include_directories(Platform PUBLIC "src/")
-
-set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "" CACHE INTERNAL "" FORCE)
-
-add_library(HardwareRenderer STATIC
-    "src/Renderer/DX11Renderer.h"
-    "src/Renderer/DX11Renderer.cpp"
-)
-target_include_directories(HardwareRenderer PUBLIC "src/")
-
-if(WIN32)
-    target_link_libraries(HardwareRenderer PUBLIC 
-        d3d11.lib 
-        dxgi.lib 
-        d3dcompiler.lib
-    )
-endif()
-
-add_library(SoftwareRenderer STATIC
-    "src/Renderer/SoftwareRenderer.h"
-    "src/Renderer/SoftwareRenderer.cpp"
-)
-target_include_directories(SoftwareRenderer PUBLIC "src/")
-
-add_library(App STATIC
-    "src/Application/Application.h"
-    "src/Application/Application.cpp"
-)
-target_include_directories(App PUBLIC "src/")
+target_include_directories(draw PUBLIC "src/")
 
 add_executable(${PROJECT_NAME} WIN32
     "src/Main.cpp"
-)
-target_include_directories(${PROJECT_NAME} PRIVATE "src/")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE 
-    Platform 
-    HardwareRenderer 
-    SoftwareRenderer
-    Draw
-    App
+    "src/Platform/Win32API.h"
+    "src/Platform/Window.h"
+    "src/Platform/Window.cpp"
+    "src/Platform/InputHandler.h"
+
+    "src/Presenter/DX11Presenter.h"
+    "src/Presenter/DX11Presenter.cpp"
+
+    "src/Renderer/Mesh.h"
+    "src/Renderer/Renderer.h"
+    "src/Renderer/Renderer.cpp"
+    "src/Renderer/WireframeRasterizer.h"
+    "src/Renderer/WireframeRasterizer.cpp"
+
+    "src/Application/Application.h"
+    "src/Application/Application.cpp"
+
+    "src/EditorUI/EditorUI.h"
+    "src/EditorUI/EditorUI.cpp"
+
+    "src/Scene/SceneGraph.h"
+    "src/Scene/SceneGraph.cpp"
+
+    "src/Camera/Camera.h"
+    "src/Camera/Camera.cpp"
 )
+
+target_include_directories(${PROJECT_NAME}
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src"
+)
+
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} PUBLIC d3d11 dxgi d3dcompiler PRIVATE imgui draw)
+endif()
