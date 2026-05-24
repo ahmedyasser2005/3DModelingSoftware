@@ -40,23 +40,23 @@ The architecture is cleanly separated into a **platform layer** (Win32), a **pre
 ```
 Application
 ├── Platform Layer
-│   ├── Window                                      — Win32 window, message pump, live resize
-│   └── InputHandler                                — Keyboard and mouse state tracking
+│   ├── Window                    — Win32 window, message pump, live resize
+│   └── InputHandler              — Keyboard and mouse state tracking
 ├── Presentation Layer
-│   └── DX11Presenter                               — Uploads CPU framebuffer to GPU via dynamic texture
+│   └── DX11Presenter             — Uploads CPU framebuffer to GPU via dynamic texture
 ├── Renderer
-│   ├── Renderer                                    — PutPixel framebuffer, dual-buffer (canvas + viewport)
-│   └── WireframeRasterizer                         — Projects 3D half-edges to 2D screen lines
+│   ├── Renderer                  — PutPixel framebuffer, dual-buffer (canvas + viewport)
+│   └── WireframeRasterizer       — Projects 3D half-edges to 2D screen lines
 ├── Draw Primitives (src/Draw/)
-│   ├── Line                                        — Bresenham, Fractional Accumulation, DDA
-│   ├── Circle                                      — Bresenham, Midpoint, Polar, Cartesian
-│   └── Ellipse                                     — Midpoint, Fractional Accumulation, Polar, Cartesian
+│   ├── Line                      — Bresenham, Fractional Accumulation, DDA
+│   ├── Circle                    — Bresenham, Midpoint, Polar, Cartesian
+│   └── Ellipse                   — Midpoint, Fractional Accumulation, Polar, Cartesian
 ├── Scene
-│   └── SceneGraph                                  — Hierarchical node tree, SRT transforms, recursive render
+│   └── SceneGraph                — Hierarchical node tree, SRT transforms, recursive render
 ├── Camera
-│   └── Camera                                      — Spherical orbit, linear pan, scroll zoom, perspective projection
+│   └── Camera                    — Spherical orbit, linear pan, scroll zoom, perspective projection
 └── EditorUI
-    └── EditorUI                                    — ImGui wrapper for all editor panels
+    └── EditorUI                  — ImGui wrapper for all editor panels
 ```
 
 ### Key Design Decisions
