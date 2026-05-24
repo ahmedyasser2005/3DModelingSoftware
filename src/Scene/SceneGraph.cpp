@@ -13,6 +13,9 @@ void SceneGraph::Initialize(Renderer& renderer)
 {
     m_Renderer = &renderer;
     DirectX::XMStoreFloat4x4(&m_ViewProjMatrix, DirectX::XMMatrixIdentity());
+
+    m_Root       = std::make_unique<Node>();
+    m_Root->Name = "Root";
 }
 
 void SceneGraph::Update(Node* node, const DirectX::XMFLOAT4X4& parentGlobal)
